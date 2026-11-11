@@ -26,6 +26,15 @@ class ActivationFlowTest < ActionDispatch::IntegrationTest
     @wakur.assert_select "turbo-frame#preview"
   end
 
+  test "tanggal bawaan formulir: hari aktif terdekat (Senin bila hari ini Sabtu)" do
+    @wakur.get new_curriculum_absence_path
+    @wakur.assert_select "input[type=date][value='2026-11-09']" # Senin, hari ini
+    travel_to Time.zone.local(2026, 11, 14, 9, 0) do # Sabtu
+      @wakur.get new_curriculum_absence_path
+      @wakur.assert_select "input[type=date][value='2026-11-16']"
+    end
+  end
+
   test "pratinjau menampilkan jam terdampak, kit, guru piket, dan tombol aktifkan; tidak menulis data" do
     assert_no_difference [ "Absence.count", "Activation.count" ] do
       @wakur.get new_curriculum_absence_path, params: { teacher_id: users(:guru_mapel).id, date: MONDAY.iso8601, reason: "sakit" }

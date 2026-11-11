@@ -50,6 +50,9 @@ module ActiveSupport
 end
 
 class ActionDispatch::IntegrationTest
+  # Batas percobaan masuk dihitung per proses; mulai bersih di tiap tes agar tes lain tidak saling memblokir.
+  setup { SessionsController::RATE_LIMIT_STORE.clear }
+
   # Sesi terpisah (browser kedua) yang sudah masuk sebagai peran tertentu.
   def login_session(role)
     open_session { |s| s.post s.session_path, params: { email_address: users(role).email_address, password: "password" } }

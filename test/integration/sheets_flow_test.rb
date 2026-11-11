@@ -190,6 +190,20 @@ class SheetsFlowTest < ActionDispatch::IntegrationTest
     sari.assert_select "turbo-cable-stream-source", 1
   end
 
+  test "daftar hasil dibatasi dan memberi tahu jumlah yang tidak tampil" do
+    @piket.patch complete_duty_activation_path(@activation)
+    other = Activation.where.not(id: @activation.id).first
+    Activations::Complete.call(activation: other, actor: other.invigilator)
+    original = ResultsController::RESULTS_LIMIT
+    silence_warnings { ResultsController.const_set(:RESULTS_LIMIT, 1) }
+    sari = login_session(:guru_mapel)
+    sari.get results_path
+    sari.assert_select ".result-card", 1
+    sari.assert_select ".muted.center", /Menampilkan 1 hasil terbaru dari 2/
+  ensure
+    silence_warnings { ResultsController.const_set(:RESULTS_LIMIT, original) } if original
+  end
+
   test "hasil guru lain tidak bisa dibuka; peran lain ditolak" do
     @piket.patch complete_duty_activation_path(@activation)
     budi = login_session(:guru_mapel_dua)

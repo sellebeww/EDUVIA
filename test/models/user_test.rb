@@ -43,6 +43,18 @@ class UserTest < ActiveSupport::TestCase
     assert_not build(email_address: "bukan-email").valid?
   end
 
+  test "kata sandi minimal 8 dan maksimal 72 karakter" do
+    assert_not build(password: "pendek7").valid?
+    assert build(password: "panjang8").valid?
+    assert_not build(password: "x" * 73).valid?
+    assert build(password: "x" * 72).valid?
+  end
+
+  test "mengubah data lain tidak menuntut kata sandi diisi ulang" do
+    user = users(:guru_mapel)
+    assert user.update(name: "Nama Baru")
+  end
+
   test "authenticate_by memeriksa kata sandi" do
     assert_equal users(:guru_mapel), User.authenticate_by(email_address: users(:guru_mapel).email_address, password: "password")
     assert_nil User.authenticate_by(email_address: users(:guru_mapel).email_address, password: "salah")
