@@ -4,7 +4,7 @@ module ApplicationHelper
   # Menu navigasi per peran: [[label, path], ...]
   def nav_items_for(user)
     case user.role
-    when "guru_mapel" then [ [ "Bank Kit", kits_path ] ]
+    when "guru_mapel" then [ [ "Bank Kit", kits_path ], [ "Hasil", results_path ] ]
     when "guru_piket" then [ [ "Kit Hari Ini", duty_root_path ] ]
     when "wakil_kurikulum"
       [ [ "Jam Kosong", curriculum_root_path ], [ "Jadwal", curriculum_lessons_path ], [ "Piket", curriculum_duty_assignments_path ],
@@ -38,4 +38,10 @@ module ApplicationHelper
     label, css = { selesai: [ "Selesai", "terpakai" ], aktif: [ "Aktif", "aktif" ], menunggu_piket: [ "Menunggu piket", "warn" ] }.fetch(activation.status)
     tag.span label, class: "badge badge--status-#{css}"
   end
+
+  # "Selasa 11 Nov": tanggal singkat untuk daftar hasil.
+  def short_date(date) = l(date, format: "%a, %d %b %Y")
+
+  # Persentase bulat; "-" bila penyebut nol.
+  def percent_of(part, whole) = whole.to_i.zero? ? "-" : "#{(part * 100.0 / whole).round}%"
 end

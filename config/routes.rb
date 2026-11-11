@@ -12,6 +12,8 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :results, only: %i[index show]
+
   # wakil_kurikulum
   namespace :curriculum do
     root "dashboards#show"
@@ -28,12 +30,17 @@ Rails.application.routes.draw do
   namespace :duty do
     root "activations#index"
     resources :activations, only: :show do
-      get :worksheet, on: :member
+      member do
+        get :worksheet
+        patch :complete
+      end
+      resources :attendance_records, only: :update
+      resources :submissions, only: :update
     end
   end
 
   # kepala_sekolah (+ wakil_kurikulum)
-  resources :reports, only: :index
+  resources :reports, only: %i[index show]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

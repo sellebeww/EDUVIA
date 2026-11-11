@@ -14,7 +14,9 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     "/curriculum/lessons" => %i[wakil_kurikulum],
     "/curriculum/duty_assignments" => %i[wakil_kurikulum],
     "/curriculum/absences/new" => %i[wakil_kurikulum],
-    "/reports" => %i[wakil_kurikulum kepala_sekolah]
+    "/reports" => %i[wakil_kurikulum kepala_sekolah], # mengarahkan ke bulan berjalan
+    "/reports/2026-11" => %i[wakil_kurikulum kepala_sekolah],
+    "/results" => %i[guru_mapel]
   }.freeze
 
   ACCESS.each do |path, allowed|
@@ -23,6 +25,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
       test "#{role} membuka #{path} => #{expected}" do
         log_in_as role
         get path
+        follow_redirect! if response.redirect? && expected == :success # /reports -> /reports/YYYY-MM
         assert_response expected
       end
     end
@@ -38,7 +41,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
 
   test "menu navigasi hanya memuat halaman yang boleh diakses" do
     log_in_as :kepala_sekolah
-    get reports_path
+    get report_path("2026-11")
     assert_select ".main-nav a", count: 1
     assert_select ".main-nav a[href='/reports']"
   end
