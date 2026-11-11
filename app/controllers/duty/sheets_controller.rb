@@ -12,7 +12,8 @@ module Duty
       respond_to do |format|
         format.turbo_stream do
           render turbo_stream: [
-            turbo_stream.replace(helpers.dom_id(record), partial: row_partial, locals: { activation: @activation, record: record }),
+            # morph, bukan ganti total: baris yang diganti membuang fokus dan ketikan guru yang masih berjalan.
+            turbo_stream.replace(helpers.dom_id(record), partial: row_partial, locals: { activation: @activation, record: record }, method: :morph),
             turbo_stream.replace("sheet-summary", partial: "duty/activations/summary", locals: { summary: @activation.sheet_summary })
           ], status: saved ? :ok : :unprocessable_entity
         end
@@ -25,8 +26,14 @@ module Duty
         @activation = current_user.duty_activations.find(params[:activation_id])
       end
 
+      # Tab lama setelah jam diselesaikan di tempat lain: segarkan halaman supaya guru melihat lembar sudah terkunci,
+      # bukan klik yang diam-diam ditolak. request_id: nil, kalau tidak Turbo menganggap refresh ini permintaannya sendiri dan mengabaikannya.
       def ensure_open
-        head :conflict if @activation.completed?
+        return unless @activation.completed?
+        respond_to do |format|
+          format.turbo_stream { render turbo_stream: turbo_stream.refresh(request_id: nil), status: :conflict }
+          format.any { head :conflict }
+        end
       end
   end
 end

@@ -13,7 +13,8 @@
       <%= form.select :period_id, current_school.periods.teaching.ordered.map { |p| [ "#{p.display_name} (#{p.time_range})", p.id ] }, { include_blank: "Pilih jam" }, required: true %></div>
   </div>
   <%= render "shared/form_actions", form: form, cancel_path: curriculum_lessons_path(school_class_id: record.school_class_id) %>
-  <% if record.persisted? %>
-    <p class="form-danger"><%= button_to "Hapus jadwal ini", curriculum_lesson_path(record), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus jadwal ini?" } } %></p>
-  <% end %>
+<% end %>
+<%# Di luar form_with: form bersarang dibuang browser, tombol hapus jadi ikut mengirim PATCH. %>
+<% if record.persisted? %>
+  <p class="form-danger"><%= button_to "Hapus jadwal ini", curriculum_lesson_path(record), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus jadwal ini?" } } %></p>
 <% end %>

@@ -46,6 +46,13 @@ class SheetsFlowTest < ActionDispatch::IntegrationTest
     assert @record.reload.tidak_hadir?
   end
 
+  # Mengganti total baris membuang fokus: guru yang mengetik "85" dengan jeda hanya tersimpan "8".
+  test "baris lembar diganti dengan morph supaya fokus dan ketikan tidak hilang" do
+    @piket.patch duty_activation_attendance_record_path(@activation, @record), params: { attendance_record: { status: "tidak_hadir" } }, headers: TURBO
+    tag = @piket.response.body[/<turbo-stream[^>]*target="attendance_record_#{@record.id}"[^>]*>/]
+    assert_includes tag, %(method="morph")
+  end
+
   test "status kehadiran tidak valid ditolak (422), data tidak berubah, pesan tampil di baris" do
     @piket.patch duty_activation_attendance_record_path(@activation, @record), params: { attendance_record: { status: "izin" } }, headers: TURBO
     assert_equal 422, @piket.response.status
@@ -148,6 +155,9 @@ class SheetsFlowTest < ActionDispatch::IntegrationTest
     @piket.patch duty_activation_attendance_record_path(@activation, @record), params: { attendance_record: { status: "hadir" } }, headers: TURBO
     assert_equal 409, @piket.response.status
     assert @record.reload.tidak_hadir?
+    # Tab lama tidak boleh gagal diam-diam: Turbo diminta menyegarkan halaman (tanpa request-id, kalau ada Turbo mengabaikannya).
+    assert_equal "text/vnd.turbo-stream.html", @piket.response.media_type
+    assert_match(/<turbo-stream action="refresh"><\/turbo-stream>/, @piket.response.body)
   end
 
   test "selesai dua kali: pesan sudah diselesaikan, tidak ada perubahan" do

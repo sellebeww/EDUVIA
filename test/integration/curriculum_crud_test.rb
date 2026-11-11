@@ -172,6 +172,13 @@ class CurriculumCrudTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "jadwal: tombol hapus berdiri sendiri, tidak bersarang di form ubah" do
+    lesson = lessons(:selasa_jam1_8a)
+    get edit_curriculum_lesson_path(lesson)
+    assert_select "form form", false
+    assert_select "form[action='#{curriculum_lesson_path(lesson)}'] input[name=_method][value=delete] ~ button", text: /Hapus jadwal ini/
+  end
+
   test "jadwal: jadwal sekolah lain tidak bisa dibuka" do
     foreign = Lesson.new(school_class: school_classes(:kelas_lain), subject: subjects(:mapel_lain), teacher: users(:guru_lain), period: periods(:jam_lain), day_of_week: 1)
     foreign.save!
