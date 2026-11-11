@@ -8,6 +8,6 @@
   <dl class="result-card__stats">
     <div><dt>Hadir</dt><dd><%= result[:present_count] %>/<%= result[:students_count] %></dd></div>
     <div><dt>Mengumpulkan</dt><dd><%= result[:submitted_count] %>/<%= result[:students_count] %></dd></div>
-    <div><dt>Rata-rata nilai</dt><dd><%= result[:average_score] || "-" %></dd></div>
+    <div><dt>Rata-rata nilai</dt><dd><%= result[:average_score]&.to_i || "-" %></dd></div>
   </dl>
 </article>

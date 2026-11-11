@@ -255,3 +255,8 @@
 .hbar__value { font-weight: 700; min-width: 2ch; text-align: right; }
 .report-note { max-width: 78ch; font-size: .9rem; }
 @media (max-width: 640px) { .result-card__stats { gap: var(--space-4); } .hbar { grid-template-columns: 70px 1fr auto; } }
+
+/* Perapian lembar (Fase 5) */
+.sheets + .alert, .sheets + .finish { margin-top: var(--space-4); }
+.sheet-row__name { margin-right: var(--space-2); }
+.sheet-row__done { color: var(--ink-2); margin-left: var(--space-2); }
