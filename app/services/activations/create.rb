@@ -109,6 +109,7 @@ module Activations
 
       def broadcast(result)
         Broadcaster.refresh(school: @teacher.school, invigilator_ids: result.created.map(&:invigilator_id), teacher_ids: [ @teacher.id ])
+        Broadcaster.notify_new_kits(result.created)
       end
 
       def failure(error)

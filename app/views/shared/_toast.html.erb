@@ -1,0 +1,7 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (title:, body: nil, tone: "info") %>
+<div class="toast toast--<%= tone %>" role="status" data-controller="toast">
+  <span class="toast__icon"><%= icon(tone == "ok" ? "check" : "bell") %></span>
+  <div class="toast__text"><strong><%= title %></strong><% if body %><span><%= body %></span><% end %></div>
+  <button type="button" class="toast__close" data-action="toast#dismiss" aria-label="Tutup"><%= icon("x", size: 16) %></button>
+</div>

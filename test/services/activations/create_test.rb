@@ -75,13 +75,13 @@ class Activations::CreateTest < ActiveSupport::TestCase
 
   test "siaran hanya terjadi pada aktivasi pertama" do
     piket_streams = [ users(:guru_piket), users(:guru_piket_dua) ].map { |u| "duty_#{u.id}" }
-    assert_turbo_stream_broadcasts(piket_streams.first, count: 1) do
-      assert_turbo_stream_broadcasts(piket_streams.last, count: 1) do
-        assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 1) { run_create }
+    assert_list_broadcasts(piket_streams.first, count: 1) do
+      assert_list_broadcasts(piket_streams.last, count: 1) do
+        assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 1) { run_create }
       end
     end
-    assert_turbo_stream_broadcasts(piket_streams.first, count: 0) { run_create }
-    assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { run_create }
+    assert_list_broadcasts(piket_streams.first, count: 0) { run_create }
+    assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { run_create }
   end
 
   test "kartu yang disiarkan memuat kelas dan kit" do
@@ -92,12 +92,22 @@ class Activations::CreateTest < ActiveSupport::TestCase
     assert_match(/VII A|VIII A/, html)
   end
 
+  test "guru piket menerima toast 'Kit baru masuk' yang meringkas kelasnya, hanya pada aktivasi pertama" do
+    DutyAssignment.where(user: users(:guru_piket_dua)).delete_all
+    toasts = captured_toasts("duty_#{users(:guru_piket).id}") { run_create }
+    assert_equal 1, toasts.size, "satu toast per guru piket, walau ada beberapa kelas"
+    html = toasts.first.to_html
+    assert_includes html, "Kit baru masuk"
+    assert_includes html, "dan 1 kelas lain"
+    assert_empty captured_toasts("duty_#{users(:guru_piket).id}") { run_create }
+  end
+
   # --- kasus tepi ---
   test "tanpa guru piket: aktivasi menunggu, dengan peringatan, hanya dashboard wakur yang diperbarui" do
     DutyAssignment.delete_all
     result = nil
-    assert_turbo_stream_broadcasts("duty_#{users(:guru_piket).id}", count: 0) do
-      assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 1) { result = run_create }
+    assert_list_broadcasts("duty_#{users(:guru_piket).id}", count: 0) do
+      assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 1) { result = run_create }
     end
     assert result.ok?
     activations = Activation.all

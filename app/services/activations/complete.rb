@@ -38,6 +38,7 @@ module Activations
       def broadcast
         Broadcaster.refresh(school: @activation.school_class.school, invigilator_ids: [ @activation.invigilator_id ],
                             teacher_ids: [ @activation.absence.teacher_id ])
+        Broadcaster.notify_result(@activation)
       end
 
       def failure(error) = Result.new(ok: false, activation: @activation, already: false, error: error)

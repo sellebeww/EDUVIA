@@ -39,7 +39,7 @@ class Activations::CompleteTest < ActiveSupport::TestCase
     complete(@with_kit)
     first_time = @with_kit.reload.completed_at
     result = nil
-    assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { result = complete(@with_kit) }
+    assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { result = complete(@with_kit) }
     assert result.ok?
     assert result.already
     assert_equal first_time, @with_kit.reload.completed_at
@@ -66,11 +66,18 @@ class Activations::CompleteTest < ActiveSupport::TestCase
 
   test "siaran ke guru piket, wakil kurikulum, dan guru mapel pemilik materi" do
     piket = "duty_#{@with_kit.invigilator_id}"
-    assert_turbo_stream_broadcasts(piket, count: 1) do
-      assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 1) do
-        assert_turbo_stream_broadcasts("teacher_#{users(:guru_mapel).id}", count: 1) { complete(@with_kit) }
+    assert_list_broadcasts(piket, count: 1) do
+      assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 1) do
+        assert_list_broadcasts("teacher_#{users(:guru_mapel).id}", count: 1) { complete(@with_kit) }
       end
     end
+  end
+
+  test "guru mapel menerima toast 'Hasil masuk'" do
+    toasts = captured_toasts("teacher_#{users(:guru_mapel).id}") { complete(@with_kit) }
+    assert_equal 1, toasts.size
+    assert_includes toasts.first.to_html, "Hasil masuk"
+    assert_includes toasts.first.to_html, "VII A · Matematika"
   end
 
   test "siaran ke guru mapel memuat hasil dan hitungan kit" do

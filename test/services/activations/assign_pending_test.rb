@@ -12,7 +12,7 @@ class Activations::AssignPendingTest < ActiveSupport::TestCase
     assert Activation.all.all? { |a| a.invigilator.nil? }
     DutyAssignment.create!(user: users(:guru_piket), date: MONDAY)
     assigned = nil
-    assert_turbo_stream_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
+    assert_list_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
       assigned = Activations::AssignPending.call(date: MONDAY, school: schools(:smp))
     end
     assert_equal 2, assigned.size
@@ -20,6 +20,13 @@ class Activations::AssignPendingTest < ActiveSupport::TestCase
       assert_equal users(:guru_piket), a.reload.invigilator
       assert_not_includes a.warning_codes, "no_invigilator"
     end
+  end
+
+  test "guru piket yang baru ditugaskan menerima toast" do
+    DutyAssignment.create!(user: users(:guru_piket), date: MONDAY)
+    toasts = captured_toasts("duty_#{users(:guru_piket).id}") { Activations::AssignPending.call(date: MONDAY, school: schools(:smp)) }
+    assert_equal 1, toasts.size
+    assert_includes toasts.first.to_html, "Kit baru masuk"
   end
 
   test "peringatan no_kit dipertahankan" do

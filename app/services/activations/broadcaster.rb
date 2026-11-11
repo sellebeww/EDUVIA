@@ -20,6 +20,28 @@ module Activations
       )
     end
 
+    # Toast untuk guru piket: "Kit baru masuk" (satu toast per guru piket, meringkas beberapa kelas).
+    def notify_new_kits(activations)
+      activations.select(&:invigilator_id).group_by(&:invigilator_id).each do |user_id, rows|
+        labels = rows.map(&:label)
+        body = labels.size > 1 ? "#{labels.first} dan #{labels.size - 1} kelas lain" : "#{labels.first} · #{rows.first.slot_label}"
+        toast("duty_#{user_id}", title: "Kit baru masuk", body: body)
+      end
+    rescue StandardError => e
+      Rails.logger.error("[Activations::Broadcaster] gagal menyiarkan toast: #{e.class}: #{e.message}")
+    end
+
+    # Toast untuk guru mapel: hasil jam kosongnya sudah masuk.
+    def notify_result(activation)
+      toast("teacher_#{activation.absence.teacher_id}", title: "Hasil masuk", body: "#{activation.label} · #{activation.period.display_name}", tone: "ok")
+    rescue StandardError => e
+      Rails.logger.error("[Activations::Broadcaster] gagal menyiarkan toast: #{e.class}: #{e.message}")
+    end
+
+    def toast(stream, title:, body: nil, tone: "info")
+      Turbo::StreamsChannel.broadcast_append_to(stream, target: "toasts", partial: "shared/toast", locals: { title: title, body: body, tone: tone })
+    end
+
     # Dashboard guru mapel: hitungan kit dan hasil terbaru. Kartu diganti utuh lewat partial yang sama dengan halamannya.
     def teacher(user_id)
       user = User.find(user_id)

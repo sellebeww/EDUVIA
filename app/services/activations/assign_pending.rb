@@ -17,7 +17,10 @@ module Activations
         activation.update!(invigilator: pick.user, warning_codes: codes)
         activation
       end
-      Broadcaster.refresh(school: school, invigilator_ids: assigned.map(&:invigilator_id)) if assigned.any?
+      if assigned.any?
+        Broadcaster.refresh(school: school, invigilator_ids: assigned.map(&:invigilator_id))
+        Broadcaster.notify_new_kits(assigned)
+      end
       assigned
     end
   end
