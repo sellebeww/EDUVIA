@@ -1,8 +1,14 @@
-#!/bin/bash -e
+#!/bin/bash
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
+# Menyiapkan database dan data demo sebelum menjalankan perintah utama.
+set -e
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+rm -f tmp/pids/server.pid
+
+# Hanya untuk perintah server: siapkan DB dan seed (idempoten).
+if [ "$2" == "server" ]; then
+  bin/rails db:prepare
+  bin/rails db:seed
 fi
 
-exec "${@}"
+exec "$@"

@@ -1,0 +1,35 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
+# Jalankan: docker compose up   (lalu buka http://localhost:3000)
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-siaga}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-siaga_dev_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-siaga}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: ${POSTGRES_USER:-siaga}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-siaga_dev_password}
+      RAILS_LOG_TO_STDOUT: "1"
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - storage:/rails/storage
+
+volumes:
+  pgdata:
+  storage:
