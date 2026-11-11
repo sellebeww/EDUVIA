@@ -1,0 +1,34 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Hasil #{@activation.label}" %>
+<div class="page-head">
+  <p class="crumb"><%= link_to "← Semua hasil", results_path %></p>
+  <h1><%= @activation.label %></h1>
+  <p class="page-head__sub"><%= short_date(@activation.date) %> · <%= @activation.slot_label %> · diawasi <%= @activation.invigilator&.name || "-" %> · <%= @activation.kit ? @activation.kit.title : "mode cadangan (tanpa kit)" %></p>
+</div>
+
+<% hadir = @attendance.values.count(&:hadir?) %>
+<% submitted = @submissions.count(&:submitted?) %>
+<% scores = @submissions.filter_map(&:score) %>
+<div class="grid grid--3">
+  <div class="card stat"><span class="card__stat"><%= hadir %>/<%= @attendance.size %></span><span class="card__label">Hadir</span></div>
+  <div class="card stat"><span class="card__stat"><%= submitted %>/<%= @submissions.size %></span><span class="card__label">Mengumpulkan</span></div>
+  <div class="card stat"><span class="card__stat"><%= scores.any? ? (scores.sum.to_f / scores.size).round : "-" %></span><span class="card__label">Rata-rata nilai</span></div>
+</div>
+
+<div class="table-wrap"><table class="table">
+  <caption class="sr-only">Hasil per siswa</caption>
+  <thead><tr><th scope="col">No</th><th scope="col">Nama</th><th scope="col">Kehadiran</th><th scope="col">Mengumpulkan</th><th scope="col">Nilai</th><th scope="col">Catatan</th></tr></thead>
+  <tbody>
+    <% @submissions.each do |s| %>
+      <% attendance = @attendance[s.student_id] %>
+      <tr>
+        <td><%= s.student.roll_number %></td>
+        <th scope="row"><%= s.student.name %></th>
+        <td><span class="badge badge--status-<%= attendance&.hadir? ? "aktif" : "warn" %>"><%= AttendanceRecord::STATUS_LABELS.fetch(attendance&.status || "tidak_hadir") %></span></td>
+        <td><%= s.submitted? ? "Ya" : "Belum" %></td>
+        <td><%= s.score || "-" %></td>
+        <td><%= s.note.presence || "-" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table></div>

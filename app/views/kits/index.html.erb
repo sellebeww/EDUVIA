@@ -5,11 +5,8 @@
   <%= link_to "Kit baru", new_kit_path, class: "btn btn--primary" %>
 </div>
 
-<div class="grid grid--3">
-  <div class="card stat"><span class="card__stat"><%= @counts.fetch("disiapkan", 0) %></span><span class="card__label">Siap dipakai</span></div>
-  <div class="card stat"><span class="card__stat"><%= @counts.fetch("aktif", 0) %></span><span class="card__label">Sedang dipakai</span></div>
-  <div class="card stat"><span class="card__stat"><%= @counts.fetch("terpakai", 0) %></span><span class="card__label">Sudah terpakai</span></div>
-</div>
+<%= turbo_stream_from "teacher_#{current_user.id}" %>
+<%= render "kits/live", counts: @counts, results: @results %>
 
 <% if @missing.any? %>
   <section class="card notice" aria-labelledby="missing-title">

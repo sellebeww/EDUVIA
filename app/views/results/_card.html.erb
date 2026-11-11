@@ -1,0 +1,13 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (result:) %>
+<article class="result-card">
+  <div>
+    <h3 class="result-card__title"><%= link_to result.label, result_path(result) %></h3>
+    <p class="muted"><%= short_date(result.date) %> · <%= result.period.display_name %> · <%= result.kit ? result.kit.title : "Mode cadangan (tanpa kit)" %></p>
+  </div>
+  <dl class="result-card__stats">
+    <div><dt>Hadir</dt><dd><%= result[:present_count] %>/<%= result[:students_count] %></dd></div>
+    <div><dt>Mengumpulkan</dt><dd><%= result[:submitted_count] %>/<%= result[:students_count] %></dd></div>
+    <div><dt>Rata-rata nilai</dt><dd><%= result[:average_score] || "-" %></dd></div>
+  </dl>
+</article>

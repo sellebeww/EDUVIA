@@ -1,0 +1,11 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Hasil" %>
+<div class="page-head">
+  <h1>Hasil Kelas Kosong</h1>
+  <p class="page-head__sub">Hasil belajar dari jam kosong yang ditangani kit Anda, kembali ke Anda sebagai guru pemilik materi.</p>
+</div>
+<% if @results.empty? %>
+  <%= render "shared/empty_state", title: "Belum ada hasil", body: "Hasil muncul setelah guru piket menyelesaikan jam kosong Anda." %>
+<% else %>
+  <div class="result-list"><%= render partial: "results/card", collection: @results, as: :result %></div>
+<% end %>

@@ -1,0 +1,21 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (counts:, results:) %>
+<div id="teacher-live">
+  <div class="grid grid--3">
+    <div class="card stat"><span class="card__stat"><%= counts.fetch("disiapkan", 0) %></span><span class="card__label">Siap dipakai</span></div>
+    <div class="card stat"><span class="card__stat"><%= counts.fetch("aktif", 0) %></span><span class="card__label">Sedang dipakai</span></div>
+    <div class="card stat"><span class="card__stat"><%= counts.fetch("terpakai", 0) %></span><span class="card__label">Sudah terpakai</span></div>
+  </div>
+
+  <section class="card" aria-labelledby="latest-results-title">
+    <div class="sheets__head">
+      <h2 id="latest-results-title" class="card__title">Hasil terbaru</h2>
+      <%= link_to "Semua hasil", results_path, class: "btn btn--secondary btn--sm" %>
+    </div>
+    <% if results.empty? %>
+      <p class="muted">Belum ada hasil. Saat kit Anda dipakai di kelas dan diselesaikan guru piket, hasilnya muncul di sini secara langsung.</p>
+    <% else %>
+      <div class="result-list"><%= render partial: "results/card", collection: results, as: :result %></div>
+    <% end %>
+  </section>
+</div>

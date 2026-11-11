@@ -12,6 +12,7 @@ class KitsController < ApplicationController
     @kits = current_user.kits.includes(:subject, :school_class).with_attached_worksheet
                         .by_subject(params[:subject_id]).by_class(params[:school_class_id]).by_phase(params[:phase]).recent
     @counts = current_user.kits.group(:status).count
+    @results = Activation.results_for(current_user).with_details.with_stats.order(completed_at: :desc).limit(5).to_a
     @missing = @assignments.reject { |a| kit_pairs.include?([ a.subject_id, a.school_class_id ]) }
     @filtered = params.values_at(:subject_id, :school_class_id, :phase).any?(&:present?)
   end
