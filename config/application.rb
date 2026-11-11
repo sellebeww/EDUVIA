@@ -34,6 +34,8 @@ module SiagaKelas
     # in config/environments, which are processed later.
     #
     config.time_zone = "Jakarta"
+    # Jam pelajaran adalah jam dinding lokal (07.00 tetap 07.00), jadi kolom `time` tidak dikonversi zona waktu.
+    config.active_record.time_zone_aware_types = [ :datetime ]
     config.i18n.default_locale = :id
     config.i18n.available_locales = %i[id en]
 
