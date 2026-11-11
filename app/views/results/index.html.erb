@@ -8,4 +8,5 @@
   <%= render "shared/empty_state", title: "Belum ada hasil", body: "Hasil muncul setelah guru piket menyelesaikan jam kosong Anda." %>
 <% else %>
   <div class="result-list"><%= render partial: "results/card", collection: @results, as: :result %></div>
+  <% if @total > @results.size %><p class="muted center">Menampilkan <%= @results.size %> hasil terbaru dari <%= @total %>.</p><% end %>
 <% end %>

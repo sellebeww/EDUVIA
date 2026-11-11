@@ -9,6 +9,7 @@ module Curriculum
       @date = parse_date(params[:date])
       @reason = params[:reason].presence_in(Absence::REASONS.keys) || "sakit"
       @note = params[:note].to_s.first(200)
+      @default_date = (Date.current..Date.current + Activations::Create::WINDOW_DAYS).find { |d| current_school.active_days.include?(d.cwday) }
       return unless params.key?(:teacher_id) || params.key?(:date)
 
       @error = Activations::Create.validation_error(teacher: @teacher, date: @date)

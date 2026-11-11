@@ -19,7 +19,7 @@
       <%= form.select :teacher_id, @teachers.map { |t| [ t.name, t.id ] }, { include_blank: "Pilih guru", selected: @teacher&.id }, required: true %></div>
     <div class="field-row">
       <div class="field"><%= form.label :date, "Tanggal" %>
-        <%= form.date_field :date, required: true, value: @date, min: Date.current, max: Date.current + Activations::Create::WINDOW_DAYS %>
+        <%= form.date_field :date, required: true, value: (@date || @default_date), min: Date.current, max: Date.current + Activations::Create::WINDOW_DAYS %>
         <small class="field__hint">Hari ini sampai <%= Activations::Create::WINDOW_DAYS %> hari ke depan.</small></div>
       <div class="field"><%= form.label :reason, "Alasan" %>
         <%= form.select :reason, Absence::REASONS.map { |k, v| [ v, k ] }, { selected: @reason } %></div>
