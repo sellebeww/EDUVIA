@@ -22,7 +22,7 @@ MVP sedang dibangun bertahap. Rencana lengkap: [docs/PLAN.md](docs/PLAN.md). Kep
 | 1 | Fondasi: Rails 8, Docker, autentikasi, peran, layout, seed | selesai |
 | 2 | Domain inti: model, jadwal, kelas, mapel, piket, transisi status kit | selesai |
 | 3 | Bank kit: CRUD, templat, lampiran PDF, filter | selesai |
-| 4 | Aktivasi satu tombol + realtime | belum |
+| 4 | Aktivasi satu tombol + realtime (Turbo Streams, Solid Cable) | selesai |
 | 5 | Kehadiran, pengumpulan, hasil, laporan | belum |
 | 6 | Poles dan serah terima | belum |
 
@@ -61,6 +61,7 @@ docker compose run --rm app bash -c "RAILS_ENV=test bin/rails db:prepare && bin/
 
 ```
 app/controllers/concerns/   authentication.rb (bawaan Rails 8), authorization.rb (peran)
+app/services/               Activations::Create/Plan/AssignPending/Broadcaster, Kits::Matcher, Duty::Assigner
 app/models/                 school, user (enum role), period, school_class, subject, student,
                             lesson, duty_assignment, kit (transisi status), absence, activation, ...
 app/controllers/kits_controller.rb  bank kit guru mapel (templat, PDF, filter)
