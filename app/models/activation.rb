@@ -28,8 +28,15 @@ class Activation < ApplicationRecord
   scope :open, -> { where(completed_at: nil) }
   scope :completed, -> { where.not(completed_at: nil) }
   scope :within, ->(range) { where(activated_at: range) }
+  scope :for_school, ->(school) { joins(lesson: :school_class).where(school_classes: { school_id: school.id }) }
+  scope :from_date, ->(date) { joins(:absence).where("absences.date >= ?", date) }
+  scope :ordered_by_slot, -> { joins(:absence, lesson: :period).order("absences.date", "periods.number") }
+  scope :with_details, -> { includes(:kit, :invigilator, absence: :teacher, lesson: %i[subject school_class period]) }
 
   def completed? = completed_at.present?
+
+  def label = "#{school_class.name} · #{subject.name}"
+  def slot_label = "#{period.display_name} · #{period.time_range}"
 
   # :selesai | :menunggu_piket | :aktif
   def status
