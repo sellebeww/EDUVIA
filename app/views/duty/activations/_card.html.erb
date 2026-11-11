@@ -11,7 +11,7 @@
     <p class="duty-card__kit"><strong><%= activation.kit.title %></strong> · <%= activation.kit.duration_minutes %> menit
       <% if activation.reused %><span class="badge">Pakai ulang</span><% end %></p>
   <% else %>
-    <p class="duty-card__kit"><span class="badge badge--warn">Mode cadangan</span> Tidak ada kit untuk jam ini.</p>
+    <p class="duty-card__kit"><span class="badge badge--warn">Mode cadangan</span> Tugas mandiri umum</p>
   <% end %>
   <% if activation.warning_codes.any? %>
     <ul class="note-list"><% activation.warnings.each do |w| %><li><%= w %></li><% end %></ul>
