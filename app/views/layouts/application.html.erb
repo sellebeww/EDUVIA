@@ -1,29 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
   <head>
-    <title><%= content_for(:title) || "Siaga Kelas" %></title>
+    <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+    <title><%= [ content_for(:title), "Siaga Kelas" ].compact_blank.join(" · ") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Siaga Kelas">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Siaga Kelas: jam kosong bukan lagi jam bebas.">
+    <meta name="author" content="Vassel Goleyu">
+    <meta name="copyright" content="Vassel Goleyu">
+    <meta name="theme-color" content="#0a1236">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# Memuat semua stylesheet di app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="<%= authenticated? ? "app" : "guest" %>">
+    <a class="skip-link" href="#main">Lewati ke konten utama</a>
+    <%= render "shared/header" if authenticated? %>
+
+    <main id="main" class="<%= content_for?(:main_class) ? yield(:main_class) : "container" %>">
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+
+    <footer class="site-footer">
+      <small>© 2026 Vassel Goleyu · Siaga Kelas, <em>jam kosong bukan lagi jam bebas.</em></small>
+    </footer>
   </body>
 </html>

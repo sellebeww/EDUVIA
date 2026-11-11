@@ -1,9 +1,19 @@
-<h1>Update your password</h1>
-
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-
-<%= form_with url: password_path(params[:token]), method: :put do |form| %>
-  <%= form.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter new password", maxlength: 72 %><br>
-  <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Repeat new password", maxlength: 72 %><br>
-  <%= form.submit "Save" %>
-<% end %>
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Atur ulang kata sandi" %>
+<% content_for :main_class, "auth" %>
+<section class="auth__panel">
+  <div class="card auth__card">
+    <h1 class="auth__title">Atur ulang kata sandi</h1>
+    <%= form_with url: password_path(params[:token]), method: :put, class: "form" do |form| %>
+      <div class="field">
+        <%= form.label :password, "Kata sandi baru" %>
+        <%= form.password_field :password, required: true, autocomplete: "new-password", maxlength: 72 %>
+      </div>
+      <div class="field">
+        <%= form.label :password_confirmation, "Ulangi kata sandi baru" %>
+        <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72 %>
+      </div>
+      <%= form.submit "Simpan", class: "btn btn--primary btn--block" %>
+    <% end %>
+  </div>
+</section>

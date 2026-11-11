@@ -1,8 +1,16 @@
-<h1>Forgot your password?</h1>
-
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-
-<%= form_with url: passwords_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.submit "Email reset instructions" %>
-<% end %>
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Lupa kata sandi" %>
+<% content_for :main_class, "auth" %>
+<section class="auth__panel">
+  <div class="card auth__card">
+    <h1 class="auth__title">Lupa kata sandi?</h1>
+    <%= form_with url: passwords_path, class: "form" do |form| %>
+      <div class="field">
+        <%= form.label :email_address, "Email" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+      </div>
+      <%= form.submit "Kirim petunjuk", class: "btn btn--primary btn--block" %>
+    <% end %>
+    <%= link_to "Kembali ke halaman masuk", new_session_path, class: "auth__link" %>
+  </div>
+</section>

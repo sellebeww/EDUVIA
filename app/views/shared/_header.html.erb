@@ -1,0 +1,23 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="<%= root_path %>" class="brand" aria-label="EDUVIA Siaga Kelas, beranda">
+      <%= image_tag "eduvia-logo-static.svg", alt: "", class: "brand__logo", height: 30 %>
+      <span class="brand__product">Siaga Kelas</span>
+    </a>
+
+    <nav class="main-nav" aria-label="Navigasi utama">
+      <% nav_items_for(current_user).each do |label, path| %>
+        <%= link_to label, path, class: "main-nav__link", aria: { current: (current_page?(path) ? "page" : nil) } %>
+      <% end %>
+    </nav>
+
+    <div class="user-menu">
+      <div class="user-menu__who">
+        <span class="user-menu__name"><%= current_user.name %></span>
+        <span class="badge badge--on-dark"><%= current_user.role_label %></span>
+      </div>
+      <%= button_to "Keluar", session_path, method: :delete, class: "btn btn--ghost-dark btn--sm" %>
+    </div>
+  </div>
+</header>

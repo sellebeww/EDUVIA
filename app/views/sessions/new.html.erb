@@ -1,11 +1,42 @@
-<%= tag.div(flash[:alert], style: "color:red") if flash[:alert] %>
-<%= tag.div(flash[:notice], style: "color:green") if flash[:notice] %>
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Masuk" %>
+<% content_for :main_class, "auth" %>
 
-<%= form_with url: session_path do |form| %>
-  <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "Enter your email address", value: params[:email_address] %><br>
-  <%= form.password_field :password, required: true, autocomplete: "current-password", placeholder: "Enter your password", maxlength: 72 %><br>
-  <%= form.submit "Sign in" %>
-<% end %>
-<br>
+<section class="auth__panel" data-controller="demo-login">
+  <%= image_tag "eduvia-logo.svg", alt: "EDUVIA", class: "auth__logo" %>
+  <p class="auth__tagline">Jam kosong bukan lagi jam bebas.</p>
 
-<%= link_to "Forgot password?", new_password_path %>
+  <div class="card auth__card">
+    <h1 class="auth__title">Masuk ke Siaga Kelas</h1>
+
+    <%= form_with url: session_path, class: "form", data: { demo_login_target: "form" } do |form| %>
+      <div class="field">
+        <%= form.label :email_address, "Email" %>
+        <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", value: params[:email_address], data: { demo_login_target: "email" } %>
+      </div>
+      <div class="field">
+        <%= form.label :password, "Kata sandi" %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, data: { demo_login_target: "password" } %>
+      </div>
+      <%= form.submit "Masuk", class: "btn btn--primary btn--block", data: { turbo_submits_with: "Memproses..." } %>
+    <% end %>
+
+    <%= link_to "Lupa kata sandi?", new_password_path, class: "auth__link" %>
+  </div>
+
+  <% if Rails.env.development? && (demo_users = User.order(:role, :name).to_a).any? %>
+    <details class="card demo">
+      <summary>Akun demo (klik untuk masuk)</summary>
+      <ul class="demo__list">
+        <% demo_users.each do |u| %>
+          <li>
+            <button type="button" class="demo__btn" data-action="demo-login#fill" data-email="<%= u.email_address %>" data-password="<%= Rails.configuration.x.demo_password %>">
+              <strong><%= u.name %></strong>
+              <span><%= u.role_label %></span>
+            </button>
+          </li>
+        <% end %>
+      </ul>
+    </details>
+  <% end %>
+</section>

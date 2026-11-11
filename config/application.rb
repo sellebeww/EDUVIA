@@ -36,6 +36,9 @@ module SiagaKelas
     config.time_zone = "Jakarta"
     config.i18n.default_locale = :id
     config.i18n.available_locales = %i[id en]
+
+    # Kata sandi akun demo (seed + tombol akun demo di halaman masuk). Hanya untuk demo lokal.
+    config.x.demo_password = "siaga2026"
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Don't generate system test files.
