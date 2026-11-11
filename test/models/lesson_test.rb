@@ -28,6 +28,13 @@ class LessonTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordNotUnique) { dup.save!(validate: false) }
   end
 
+  test "tanpa kelas, guru, mapel, atau jam: tidak valid dan tidak meledak" do
+    lesson = Lesson.new(day_of_week: 1)
+    assert_nothing_raised { lesson.valid? }
+    assert_not lesson.valid?
+    assert lesson.errors[:school_class].any?
+  end
+
   test "hari harus 1..7 dan termasuk hari aktif sekolah" do
     assert_not build(day_of_week: 0).valid?
     assert_not build(day_of_week: 8).valid?

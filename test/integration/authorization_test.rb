@@ -7,6 +7,12 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     "/kits" => %i[guru_mapel],
     "/duty" => %i[guru_piket],
     "/curriculum" => %i[wakil_kurikulum],
+    "/curriculum/school" => %i[wakil_kurikulum],
+    "/curriculum/periods" => %i[wakil_kurikulum],
+    "/curriculum/school_classes" => %i[wakil_kurikulum],
+    "/curriculum/subjects" => %i[wakil_kurikulum],
+    "/curriculum/lessons" => %i[wakil_kurikulum],
+    "/curriculum/duty_assignments" => %i[wakil_kurikulum],
     "/reports" => %i[wakil_kurikulum kepala_sekolah]
   }.freeze
 
@@ -34,5 +40,16 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     get reports_path
     assert_select ".main-nav a", count: 1
     assert_select ".main-nav a[href='/reports']"
+  end
+
+  test "peran lain tidak bisa menulis data master (POST/PATCH/DELETE ditolak)" do
+    log_in_as :guru_mapel
+    assert_no_difference "Subject.count" do
+      post curriculum_subjects_path, params: { subject: { name: "Seni", code: "SBK" } }
+    end
+    assert_response :forbidden
+    delete curriculum_subject_path(subjects(:matematika))
+    assert_response :forbidden
+    assert Subject.exists?(subjects(:matematika).id)
   end
 end
