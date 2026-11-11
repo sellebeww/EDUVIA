@@ -1,0 +1,80 @@
+/* Copyright (c) 2026 Vassel Goleyu. All rights reserved. */
+/* Semua gerak ada di sini supaya mudah dimatikan. Prinsip: gerak menjelaskan perubahan (sesuatu masuk, tersimpan,
+   bertambah), bukan hiasan. Pengguna "kurangi gerakan" mendapat keadaan akhir langsung. */
+@layer motion {
+  /* --- Masuk halaman: blok utama naik berurutan. Wilayah live tidak ikut agar siaran tidak berkedip. --- */
+  main > :not(.live-region, .toasts, .auth__orbit) { animation: rise .5s var(--ease) both; }
+  main > :nth-child(2) { animation-delay: 40ms; }
+  main > :nth-child(3) { animation-delay: 80ms; }
+  main > :nth-child(4) { animation-delay: 120ms; }
+  main > :nth-child(n+5) { animation-delay: 160ms; }
+  .stagger > * { animation: rise .45s var(--ease) both; animation-delay: calc(var(--i, 0) * 55ms); }
+  .stagger-row { animation: fade-in .5s ease both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+  /* Transisi antar halaman (Turbo Drive + View Transitions): header tetap, isi bergeser halus */
+  .site-header { view-transition-name: site-header; }
+  ::view-transition-old(root) { animation: fade-out .16s ease both; }
+  ::view-transition-new(root) { animation: fade-in .24s ease both; }
+
+  /* --- Penanda langsung: denyut --- */
+  body:has(turbo-cable-stream-source[connected]) .live-pill__dot::after {
+    content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid currentColor; animation: ping 2s var(--ease) infinite;
+  }
+
+  /* --- Pesan dan toast --- */
+  .alert, .toast { animation: slide-in .45s var(--ease-spring) both; }
+  .toast.is-leaving, .alert.is-leaving { animation: leave .3s ease forwards; }
+
+  /* --- Slip/baris baru dari siaran realtime --- */
+  .ticket.is-new { animation: ticket-in .7s var(--ease-spring) both, glow 2.6s ease-out .1s; }
+  .ticket.is-new .ticket__no { animation: pop .6s var(--ease-spring) .15s both; }
+  tr.is-new { animation: row-flash 2.4s ease-out; }
+
+  /* --- Tersimpan: centang tergambar lalu memudar --- */
+  .saved-tick { animation: fade-out .5s ease 1.6s forwards; }
+  .saved-tick path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw .45s var(--ease) forwards; }
+
+  /* --- Keadaan kosong: tanda merek digambar --- */
+  .empty-state__mark path { stroke-dasharray: 80; stroke-dashoffset: 80; animation: draw 1.1s var(--ease) .15s forwards; }
+  .empty-state__mark path:nth-child(2) { animation-delay: .35s; }
+  .empty-state__mark path:nth-child(3) { animation-delay: .6s; }
+
+  /* --- Grafik tumbuh --- */
+  .vbar__fill { animation: grow-y .9s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + .15s); }
+  .hbar__fill { animation: grow-x .9s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms + .15s); }
+  .cover__seg { animation: grow-x .8s var(--ease) both; transform-origin: left; }
+
+  /* --- Halaman masuk: orbit pelan dan kartu naik --- */
+  .auth__orbit--a { animation: orbit-a 90s linear infinite; }
+  .auth__orbit--b { animation: orbit-b 120s linear infinite; }
+  .auth__card, .demo { animation: rise .7s var(--ease) .5s both; }
+  .auth__tagline { animation: rise .6s var(--ease) 1.1s both; }
+
+  /* --- Bilah progres Turbo --- */
+  .turbo-progress-bar { background: var(--btn-bg); height: 3px; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes fade-in { from { opacity: 0; } }
+  @keyframes fade-out { to { opacity: 0; } }
+  @keyframes slide-in { from { opacity: 0; transform: translateX(18px) scale(.97); } }
+  @keyframes leave { to { opacity: 0; transform: translateX(18px); } }
+  @keyframes ping { from { transform: scale(.6); opacity: .8; } 70%, to { transform: scale(1.9); opacity: 0; } }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; } }
+  @keyframes ticket-in { from { opacity: 0; transform: translateY(-16px) scale(.97); } }
+  @keyframes glow { from { box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand) 38%, transparent); } to { box-shadow: 0 0 0 0 transparent; } }
+  @keyframes row-flash { from { background: color-mix(in srgb, var(--brand) 22%, transparent); } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes grow-y { from { transform: scaleY(0); } }
+  @keyframes grow-x { from { transform: scaleX(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes orbit-a { to { transform: rotate(346deg); } }
+  @keyframes orbit-b { to { transform: rotate(-374deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+    .saved-tick { animation: none; }
+    .saved-tick path, .empty-state__mark path { stroke-dashoffset: 0; animation: none; }
+    .auth__orbit--a, .auth__orbit--b { animation: none; }
+  }
+}

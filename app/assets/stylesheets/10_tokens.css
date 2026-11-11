@@ -1,0 +1,86 @@
+/* Copyright (c) 2026 Vassel Goleyu. All rights reserved. */
+/* Token desain Siaga Kelas. Palet diambil dari logo EDUVIA (navy + biru listrik); terang dan gelap. */
+@layer tokens {
+  :root {
+    color-scheme: light dark;
+
+    --font: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+    --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 72px;
+    --radius-s: 8px; --radius: 14px; --radius-l: 20px;
+    --header-h: 64px;
+
+    /* Permukaan dan teks */
+    --bg: #f3f5fb;
+    --surface: #ffffff;
+    --surface-2: #f7f9fe;
+    --surface-sunk: #edf1fa;
+    --line: #dfe5f3;
+    --line-strong: #c1cbe6;
+    --ink: #0b1334;
+    --ink-2: #465182;
+    --ink-3: #596489;
+
+    /* Merek */
+    --brand: #2f55f0;
+    --brand-hover: #1b2cb0;
+    --btn-bg: #2f55f0;
+    --btn-bg-hover: #1f3fd0;
+    --btn-ink: #ffffff;
+    --brand-soft: #e8eeff;
+    --brand-soft-ink: #1b2cb0;
+    --brand-line: #c9d6f7;
+
+    /* Status */
+    --ok: #0b7a55;        --ok-soft: #e2f5ec;     --ok-line: #b5e3d0;
+    --warn: #8a4b00;      --warn-soft: #fff1d6;   --warn-line: #f1d49b;  --warn-solid: #d98a00;
+    --danger: #b4232a;    --danger-soft: #fdeaea; --danger-line: #f2c2c4;
+    --neutral-soft: #eceff7; --neutral-ink: #4b5578;
+
+    /* Header dan halaman masuk selalu gelap */
+    --header-bg: #0a1236;
+    --header-line: #16255f;
+    --header-ink: #ffffff;
+    --header-ink-2: #c9d6ff;
+
+    --shadow-1: 0 1px 2px rgb(11 19 52 / 6%), 0 4px 14px rgb(11 19 52 / 5%);
+    --shadow-2: 0 2px 4px rgb(11 19 52 / 8%), 0 14px 34px rgb(11 19 52 / 12%);
+    --focus: #2f55f0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #060a1c;
+      --surface: #0d1430;
+      --surface-2: #111a3b;
+      --surface-sunk: #0a1028;
+      --line: #1f2a55;
+      --line-strong: #34417a;
+      --ink: #e8edff;
+      --ink-2: #a9b4de;
+      --ink-3: #8d99c6;
+
+      --brand: #7c9cff;
+      --brand-hover: #a9bfff;
+      --btn-bg: #3d63ff;
+      --btn-bg-hover: #5575ff;
+      --brand-soft: #17224f;
+      --brand-soft-ink: #b7c8ff;
+      --brand-line: #2a3a7c;
+
+      --ok: #4fd8a3;      --ok-soft: #0e2c25;     --ok-line: #1b5a47;
+      --warn: #ffc169;    --warn-soft: #352708;   --warn-line: #6a4d12;  --warn-solid: #e8a020;
+      --danger: #ff9097;  --danger-soft: #3a1618; --danger-line: #7a2c31;
+      --neutral-soft: #1a2247; --neutral-ink: #aab3d8;
+
+      --header-bg: #070c24;
+      --header-line: #131c4a;
+
+      --shadow-1: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 25%);
+      --shadow-2: 0 2px 4px rgb(0 0 0 / 50%), 0 14px 34px rgb(0 0 0 / 40%);
+      --focus: #9db4ff;
+    }
+  }
+}
