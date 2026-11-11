@@ -22,7 +22,7 @@
     <thead>
       <tr>
         <th scope="col">Jam</th>
-        <% @days.each do |day| %><th scope="col"><%= day_name(day) %></th><% end %>
+        <% @days.each do |day| %><th scope="col" class="<%= "is-today" if day == Date.current.cwday %>"><%= day_name(day) %><% if day == Date.current.cwday %><small>Hari ini</small><% end %></th><% end %>
       </tr>
     </thead>
     <tbody>
@@ -34,7 +34,7 @@
           <% else %>
             <% @days.each do |day| %>
               <% lesson = @grid[[ day, period.id ]] %>
-              <td>
+              <td class="<%= "is-today" if day == Date.current.cwday %>">
                 <% if lesson %>
                   <%= link_to edit_curriculum_lesson_path(lesson), class: "slot" do %>
                     <strong><%= lesson.subject.name %></strong><span><%= lesson.teacher.name %></span>

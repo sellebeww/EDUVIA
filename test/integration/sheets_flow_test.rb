@@ -130,7 +130,7 @@ class SheetsFlowTest < ActionDispatch::IntegrationTest
     @piket.patch duty_activation_attendance_record_path(@activation, @record), params: { attendance_record: { status: "tidak_hadir" } }, headers: TURBO
     @piket.patch duty_activation_submission_path(@activation, @submission), params: { submission: { submitted: "1", score: "90" } }, headers: TURBO
 
-    assert_turbo_stream_broadcasts("teacher_#{users(:guru_mapel).id}", count: 1) do
+    assert_list_broadcasts("teacher_#{users(:guru_mapel).id}", count: 1) do
       @piket.patch complete_duty_activation_path(@activation)
     end
     @piket.assert_redirected_to duty_activation_path(@activation)

@@ -2,22 +2,23 @@
 <header class="site-header">
   <div class="site-header__inner">
     <a href="<%= root_path %>" class="brand" aria-label="EDUVIA Siaga Kelas, beranda">
-      <%= image_tag "eduvia-logo-static.svg", alt: "", class: "brand__logo", height: 30 %>
+      <%= image_tag "eduvia-logo-static.svg", alt: "", class: "brand__logo", height: 28 %>
       <span class="brand__product">Siaga Kelas</span>
     </a>
 
     <nav class="main-nav" aria-label="Navigasi utama">
       <% nav_items_for(current_user).each do |label, path| %>
-        <%= link_to label, path, class: "main-nav__link", aria: { current: (current_page?(path) ? "page" : nil) } %>
+        <%= link_to label, path, class: "main-nav__link", aria: { current: (nav_current?(path) ? "page" : nil) } %>
       <% end %>
     </nav>
 
     <div class="user-menu">
       <div class="user-menu__who">
         <span class="user-menu__name"><%= current_user.name %></span>
-        <span class="badge badge--on-dark"><%= current_user.role_label %></span>
+        <span class="user-menu__role"><%= current_user.role_label %></span>
       </div>
-      <%= button_to "Keluar", session_path, method: :delete, class: "btn btn--ghost-dark btn--sm" %>
+      <span class="avatar" aria-hidden="true"><%= initials(current_user.name) %></span>
+      <%= button_to session_path, method: :delete, class: "btn btn--ghost-dark btn--sm", form_class: "button_to" do %><%= icon("logout", size: 16) %>Keluar<% end %>
     </div>
   </div>
 </header>

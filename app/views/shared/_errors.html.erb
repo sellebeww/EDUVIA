@@ -1,7 +1,6 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
-<div class="alert alert--danger" role="alert">
+<div class="alert alert--danger" role="alert"><%= icon("alert") %><div class="alert__body">
   <strong><%= record.errors.count %> isian perlu diperbaiki:</strong>
   <ul class="alert__list">
     <% record.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
-  </ul>
-</div>
+  </ul></div></div>

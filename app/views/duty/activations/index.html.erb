@@ -3,8 +3,8 @@
 <%= turbo_stream_from "duty_#{current_user.id}" %>
 
 <div class="page-head">
-  <h1>Kit Hari Ini</h1>
-  <p class="page-head__sub">Kit siaga yang dikirim ke Anda tampil langsung di sini, tanpa perlu memuat ulang.</p>
+  <div class="page-head__title"><h1>Kit Hari Ini</h1><%= render "shared/live_pill" %></div>
+  <p class="page-head__sub"><%= l(Date.current, format: "%A, %d %B %Y") %> · kit siaga yang dikirim ke Anda tampil langsung di sini, tanpa perlu memuat ulang.</p>
 </div>
 
 <%= render "duty/activations/list", activations: @activations %>

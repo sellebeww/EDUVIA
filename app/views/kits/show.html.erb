@@ -2,20 +2,20 @@
 <% content_for :title, @kit.title %>
 <div class="page-head page-head--row">
   <div>
-    <p class="crumb"><%= link_to "← Bank Kit", kits_path %></p>
+    <p class="crumb"><%= link_to kits_path do %><%= icon("arrow-left", size: 16) %>Bank Kit<% end %></p>
     <h1><%= @kit.title %></h1>
     <p class="page-head__sub"><%= @kit.school_class.name %> · <%= @kit.subject.name %> · Fase <%= @kit.phase %> · <%= @kit.duration_minutes %> menit</p>
   </div>
   <div class="toolbar">
     <% if @kit.editable? %>
-      <%= link_to "Ubah", edit_kit_path(@kit), class: "btn btn--primary" %>
+      <%= link_to edit_kit_path(@kit), class: "btn btn--primary" do %><%= icon("pencil", size: 16) %>Ubah<% end %>
     <% end %>
-    <%= button_to "Duplikat", duplicate_kit_path(@kit), method: :post, class: "btn btn--secondary" %>
+    <%= button_to duplicate_kit_path(@kit), method: :post, class: "btn btn--secondary" do %><%= icon("copy", size: 16) %>Duplikat<% end %>
   </div>
 </div>
 
 <% unless @kit.editable? %>
-  <div class="alert alert--ok" role="status">Kit ini sedang dipakai di kelas, jadi tidak bisa diubah atau dihapus sampai selesai.</div>
+  <div class="alert alert--ok" role="status"><%= icon("info") %><div class="alert__body">Kit ini sedang dipakai di kelas, jadi tidak bisa diubah atau dihapus sampai selesai.</div></div>
 <% end %>
 
 <div class="kit-detail">
@@ -30,7 +30,7 @@
   <section class="card">
     <h2 class="card__title">Lampiran</h2>
     <% if @kit.worksheet.attached? %>
-      <p><%= link_to "Unduh #{@kit.worksheet.filename}", worksheet_kit_path(@kit), class: "btn btn--secondary" %>
+      <p><%= link_to worksheet_kit_path(@kit), class: "btn btn--secondary" do %><%= icon("download", size: 18) %>Unduh <%= @kit.worksheet.filename %><% end %>
         <small class="muted"><%= number_to_human_size(@kit.worksheet.byte_size) %></small></p>
     <% else %>
       <p class="muted">Tidak ada lampiran PDF.</p>
@@ -45,6 +45,6 @@
 
 <% if @kit.editable? %>
   <div class="form-danger">
-    <%= button_to "Hapus kit", kit_path(@kit), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus kit \"#{@kit.title}\"?" } } %>
+    <%= button_to kit_path(@kit), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus kit \"#{@kit.title}\"?" } } do %><%= icon("trash", size: 14) %>Hapus kit<% end %>
   </div>
 <% end %>

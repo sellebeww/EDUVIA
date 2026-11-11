@@ -14,6 +14,7 @@
           <label class="seg__opt"><%= radio_button_tag "attendance_record[status]", value, record.status == value, id: "#{dom_id(record)}_#{value}", data: { action: "autosave#submit" } %><span><%= label %></span></label>
         <% end %>
       </fieldset>
+      <% if record.saved_changes.except("updated_at").any? %><span class="saved-tick" role="status"><%= icon("check", size: 18) %><span class="sr-only">Tersimpan</span></span><% end %>
       <noscript><button type="submit" class="btn btn--secondary btn--sm">Simpan</button></noscript>
       <% record.errors.full_messages.each do |m| %><small class="sheet-row__error" role="alert"><%= m %></small><% end %>
     <% end %>

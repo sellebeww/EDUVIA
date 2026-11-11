@@ -1,8 +1,8 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <%# locals: (activations:) %>
-<div id="duty-activations">
+<div id="duty-activations" class="live-region" data-controller="live-title" data-live-title-count-value="<%= activations.count { |a| !a.completed? } %>">
   <% if activations.empty? %>
-    <%= render "shared/empty_state", title: "Belum ada kit aktif", body: "Saat ada kelas kosong, kartu kit muncul otomatis di sini." %>
+    <%= render "shared/empty_state", title: "Belum ada kit aktif", body: "Saat ada kelas kosong, slip kit muncul otomatis di sini." %>
   <% else %>
     <% activations.group_by(&:date).each do |date, rows| %>
       <section class="day-group" aria-label="<%= date_heading(date) %>">

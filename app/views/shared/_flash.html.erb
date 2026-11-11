@@ -1,13 +1,11 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% if flash[:alert] %>
-  <div class="alert alert--danger" role="alert"><%= flash[:alert] %></div>
+  <div class="alert alert--danger" role="alert"><%= icon("alert") %><div class="alert__body"><%= flash[:alert] %></div></div>
 <% end %>
 <% if flash[:notice] %>
-  <div class="alert alert--ok" role="status"><%= flash[:notice] %></div>
+  <div class="alert alert--ok" role="status" data-controller="flash"><%= icon("check") %><div class="alert__body"><%= flash[:notice] %></div><button type="button" class="alert__close" data-action="flash#dismiss" aria-label="Tutup pesan"><%= icon("x", size: 16) %></button></div>
 <% end %>
 <% if flash[:warnings].present? %>
-  <div class="alert alert--warn" role="status">
-    <strong>Perlu perhatian:</strong>
-    <ul class="alert__list"><% Array(flash[:warnings]).each do |warning| %><li><%= warning %></li><% end %></ul>
-  </div>
+  <div class="alert alert--warn" role="status"><%= icon("alert") %><div class="alert__body"><strong>Perlu perhatian:</strong>
+    <ul class="alert__list"><% Array(flash[:warnings]).each do |warning| %><li><%= warning %></li><% end %></ul></div></div>
 <% end %>

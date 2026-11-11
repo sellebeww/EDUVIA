@@ -1,16 +1,16 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <%# locals: (counts:, results:) %>
-<div id="teacher-live">
+<div id="teacher-live" class="live-region">
   <div class="grid grid--3">
-    <div class="card stat"><span class="card__stat"><%= counts.fetch("disiapkan", 0) %></span><span class="card__label">Siap dipakai</span></div>
-    <div class="card stat"><span class="card__stat"><%= counts.fetch("aktif", 0) %></span><span class="card__label">Sedang dipakai</span></div>
-    <div class="card stat"><span class="card__stat"><%= counts.fetch("terpakai", 0) %></span><span class="card__label">Sudah terpakai</span></div>
+    <div class="card stat"><span class="stat__icon"><%= icon("kit", size: 34) %></span><span class="card__stat"><%= counts.fetch("disiapkan", 0) %></span><span class="card__label">Siap dipakai</span></div>
+    <div class="card stat"><span class="stat__icon"><%= icon("bell", size: 34) %></span><span class="card__stat"><%= counts.fetch("aktif", 0) %></span><span class="card__label">Sedang dipakai</span></div>
+    <div class="card stat"><span class="stat__icon"><%= icon("check", size: 34) %></span><span class="card__stat"><%= counts.fetch("terpakai", 0) %></span><span class="card__label">Sudah terpakai</span></div>
   </div>
 
-  <section class="card" aria-labelledby="latest-results-title">
+  <section class="card" aria-labelledby="latest-results-title" style="margin-bottom: var(--space-5)">
     <div class="sheets__head">
       <h2 id="latest-results-title" class="card__title">Hasil terbaru</h2>
-      <%= link_to "Semua hasil", results_path, class: "btn btn--secondary btn--sm" %>
+      <%= link_to results_path, class: "btn btn--secondary btn--sm" do %>Semua hasil<%= icon("arrow-right", size: 14) %><% end %>
     </div>
     <% if results.empty? %>
       <p class="muted">Belum ada hasil. Saat kit Anda dipakai di kelas dan diselesaikan guru piket, hasilnya muncul di sini secara langsung.</p>

@@ -35,8 +35,15 @@ module ApplicationHelper
   end
 
   def activation_status_badge(activation)
-    label, css = { selesai: [ "Selesai", "terpakai" ], aktif: [ "Aktif", "aktif" ], menunggu_piket: [ "Menunggu piket", "warn" ] }.fetch(activation.status)
-    tag.span label, class: "badge badge--status-#{css}"
+    label, css, icon_name = { selesai: [ "Selesai", "terpakai", "check" ], aktif: [ "Aktif", "aktif", "bell" ], menunggu_piket: [ "Menunggu piket", "warn", "clock" ] }.fetch(activation.status)
+    tag.span(safe_join([ icon(icon_name, size: 12), label ]), class: "badge badge--status-#{css}")
+  end
+
+  # Menu aktif juga untuk halaman turunan (mis. /kits/3 -> Bank Kit). Bila beberapa menu cocok
+  # (mis. /curriculum dan /curriculum/lessons), hanya yang paling spesifik (terpanjang) yang aktif.
+  def nav_current?(path, items = nav_items_for(current_user))
+    matches = items.map(&:last).select { |candidate| request.path == candidate || request.path.start_with?("#{candidate}/") }
+    matches.max_by(&:length) == path
   end
 
   # "Selasa 11 Nov": tanggal singkat untuk daftar hasil.

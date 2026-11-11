@@ -8,12 +8,12 @@
   <h3 class="kit-card__title"><%= link_to kit.title, kit_path(kit) %></h3>
   <p class="kit-card__meta"><%= kit.school_class.name %> · <%= kit.subject.name %></p>
   <ul class="kit-card__facts">
-    <li><%= kit.duration_minutes %> menit</li>
-    <li><%= kit.worksheet.attached? ? "Ada lampiran PDF" : "Tanpa lampiran" %></li>
-    <li>Dipakai <%= kit.times_used %>×</li>
+    <li><%= icon("clock", size: 14) %><%= kit.duration_minutes %> menit</li>
+    <li><%= icon("doc", size: 14) %><%= kit.worksheet.attached? ? "Ada lampiran PDF" : "Tanpa lampiran" %></li>
+    <li><%= icon("check", size: 14) %>Dipakai <%= kit.times_used %>×</li>
   </ul>
   <footer class="kit-card__actions">
     <%= link_to "Lihat", kit_path(kit), class: "btn btn--secondary btn--sm" %>
-    <% if kit.editable? %><%= link_to "Ubah", edit_kit_path(kit), class: "btn btn--secondary btn--sm" %><% end %>
+    <% if kit.editable? %><%= link_to edit_kit_path(kit), class: "btn btn--secondary btn--sm" do %><%= icon("pencil", size: 14) %>Ubah<% end %><% end %>
   </footer>
 </article>

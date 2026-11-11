@@ -75,15 +75,15 @@ class ActivationFlowTest < ActionDispatch::IntegrationTest
   test "klik ganda: kedua kali tidak membuat data atau siaran ganda" do
     activate
     assert_no_difference [ "Absence.count", "Activation.count", "AttendanceRecord.count" ] do
-      assert_turbo_stream_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { activate }
+      assert_list_broadcasts("curriculum_#{schools(:smp).id}", count: 0) { activate }
     end
     @wakur.follow_redirect!
     @wakur.assert_select ".alert--ok", /sudah diaktifkan sebelumnya/
   end
 
   test "siaran realtime: kartu dikirim ke guru piket yang tepat saat aktivasi" do
-    assert_turbo_stream_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
-      assert_turbo_stream_broadcasts("duty_#{users(:guru_piket_dua).id}", count: 1) do
+    assert_list_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
+      assert_list_broadcasts("duty_#{users(:guru_piket_dua).id}", count: 1) do
         activate
       end
     end
@@ -208,7 +208,7 @@ class ActivationFlowTest < ActionDispatch::IntegrationTest
     @wakur.assert_select ".badge--warn", text: "Belum ada", minimum: 1
     @wakur.assert_select ".badge--status-warn", text: "Menunggu piket", minimum: 1
 
-    assert_turbo_stream_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
+    assert_list_broadcasts("duty_#{users(:guru_piket).id}", count: 1) do
       @wakur.post curriculum_duty_assignments_path, params: { duty_assignment: { user_id: users(:guru_piket).id, date: MONDAY.iso8601 } }
     end
     assert Activation.all.all? { |a| a.reload.invigilator == users(:guru_piket) && a.status == :aktif }

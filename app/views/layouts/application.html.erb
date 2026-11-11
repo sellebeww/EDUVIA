@@ -9,6 +9,8 @@
     <meta name="author" content="Vassel Goleyu">
     <meta name="copyright" content="Vassel Goleyu">
     <meta name="theme-color" content="#0a1236">
+    <meta name="color-scheme" content="light dark">
+    <meta name="view-transition" content="same-origin">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
@@ -16,8 +18,9 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="<%= asset_path("plus-jakarta-sans-latin-wght-normal.woff2") %>" as="font" type="font/woff2" crossorigin>
 
-    <%# Memuat semua stylesheet di app/assets/stylesheets %>
+    <%# Memuat semua stylesheet di app/assets/stylesheets (urutan lapisan diatur di 00_layers.css) %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
@@ -25,6 +28,7 @@
   <body class="<%= authenticated? ? "app" : "guest" %>">
     <a class="skip-link" href="#main">Lewati ke konten utama</a>
     <%= render "shared/header" if authenticated? %>
+    <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
 
     <main id="main" class="<%= content_for?(:main_class) ? yield(:main_class) : "container" %>">
       <%= render "shared/flash" %>

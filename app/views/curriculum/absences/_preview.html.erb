@@ -12,8 +12,8 @@
       <caption class="sr-only">Jam terdampak dan kit yang akan dikirim</caption>
       <thead><tr><th scope="col">Jam</th><th scope="col">Kelas</th><th scope="col">Kit</th><th scope="col">Guru piket</th><th scope="col">Status</th></tr></thead>
       <tbody>
-        <% items.each do |item| %>
-          <tr>
+        <% items.each_with_index do |item, i| %>
+          <tr class="stagger-row" style="--i: <%= i %>">
             <th scope="row"><%= item.lesson.period.display_name %><br><small class="muted"><%= item.lesson.period.time_range %></small></th>
             <td><strong><%= item.lesson.school_class.name %></strong><br><small class="muted"><%= item.lesson.subject.name %></small></td>
             <td>
@@ -31,9 +31,12 @@
     </table></div>
 
     <% if fresh.any? %>
-      <%= button_to "Aktifkan #{fresh.size} kelas sekarang", curriculum_absences_path, method: :post, class: "btn btn--primary btn--lg",
-            params: { teacher_id: @teacher.id, date: @date.iso8601, reason: @reason, note: @note },
-            form: { data: { turbo_frame: "_top" } }, data: { turbo_submits_with: "Mengaktifkan..." } %>
+      <div class="preview-actions">
+        <%= button_to curriculum_absences_path, method: :post, class: "btn btn--primary btn--lg",
+              params: { teacher_id: @teacher.id, date: @date.iso8601, reason: @reason, note: @note },
+              form: { data: { turbo_frame: "_top" } }, data: { turbo_submits_with: "Mengaktifkan..." } do %><%= icon("bell", size: 20) %>Aktifkan <%= fresh.size %> kelas sekarang<% end %>
+        <span class="muted">Kit langsung terkirim ke guru piket.</span>
+      </div>
     <% else %>
       <p class="muted">Semua kelas untuk guru dan tanggal ini sudah diaktifkan.</p>
     <% end %>

@@ -1,7 +1,7 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% content_for :title, "Hasil #{@activation.label}" %>
 <div class="page-head">
-  <p class="crumb"><%= link_to "← Semua hasil", results_path %></p>
+  <p class="crumb"><%= link_to results_path do %><%= icon("arrow-left", size: 16) %>Semua hasil<% end %></p>
   <h1><%= @activation.label %></h1>
   <p class="page-head__sub"><%= short_date(@activation.date) %> · <%= @activation.slot_label %> · diawasi <%= @activation.invigilator&.name || "-" %> · <%= @activation.kit ? @activation.kit.title : "mode cadangan (tanpa kit)" %></p>
 </div>
@@ -10,9 +10,9 @@
 <% submitted = @submissions.count(&:submitted?) %>
 <% scores = @submissions.filter_map(&:score) %>
 <div class="grid grid--3">
-  <div class="card stat"><span class="card__stat"><%= hadir %>/<%= @attendance.size %></span><span class="card__label">Hadir</span></div>
-  <div class="card stat"><span class="card__stat"><%= submitted %>/<%= @submissions.size %></span><span class="card__label">Mengumpulkan</span></div>
-  <div class="card stat"><span class="card__stat"><%= scores.any? ? (scores.sum.to_f / scores.size).round : "-" %></span><span class="card__label">Rata-rata nilai</span></div>
+  <div class="card stat"><span class="stat__icon"><%= icon("users", size: 34) %></span><span class="card__stat"><%= hadir %>/<%= @attendance.size %></span><span class="card__label">Hadir</span></div>
+  <div class="card stat"><span class="stat__icon"><%= icon("doc", size: 34) %></span><span class="card__stat"><%= submitted %>/<%= @submissions.size %></span><span class="card__label">Mengumpulkan</span></div>
+  <div class="card stat"><span class="stat__icon"><%= icon("chart", size: 34) %></span><span class="card__stat"><%= scores.any? ? (scores.sum.to_f / scores.size).round : "-" %></span><span class="card__label">Rata-rata nilai</span></div>
 </div>
 
 <div class="table-wrap"><table class="table">

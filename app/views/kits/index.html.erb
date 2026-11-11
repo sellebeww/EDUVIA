@@ -1,8 +1,8 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% content_for :title, "Bank Kit" %>
 <div class="page-head page-head--row">
-  <div><h1>Bank Kit Saya</h1><p class="page-head__sub">Kit siaga tugas mandiri untuk kelas yang Anda ajar. Siapkan sebelum dibutuhkan.</p></div>
-  <%= link_to "Kit baru", new_kit_path, class: "btn btn--primary" %>
+  <div><div class="page-head__title"><h1>Bank Kit Saya</h1><%= render "shared/live_pill" %></div><p class="page-head__sub">Kit siaga tugas mandiri untuk kelas yang Anda ajar. Siapkan sebelum dibutuhkan.</p></div>
+  <%= link_to new_kit_path, class: "btn btn--primary" do %><%= icon("plus", size: 18) %>Kit baru<% end %>
 </div>
 
 <%= turbo_stream_from "teacher_#{current_user.id}" %>

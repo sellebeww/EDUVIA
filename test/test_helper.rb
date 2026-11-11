@@ -16,6 +16,18 @@ module ActiveSupport
     # Dimuat eksplisit: turbo-rails hanya meng-include otomatis bila Action Cable ter-load lebih dulu (urutan tak pasti).
     include Turbo::Broadcastable::TestHelper
 
+    # Menghitung siaran daftar (aksi "replace") pada sebuah stream. Toast (aksi "append") dihitung terpisah.
+    def assert_list_broadcasts(stream, count:, &block)
+      streams = capture_turbo_stream_broadcasts(stream, &block)
+      actual = streams.count { |element| element["action"] == "replace" }
+      assert_equal count, actual, "Diharapkan #{count} siaran daftar pada #{stream.inspect}, ada #{actual}"
+    end
+
+    # Toast (aksi "append" ke #toasts) yang disiarkan selama blok berjalan.
+    def captured_toasts(stream, &block)
+      capture_turbo_stream_broadcasts(stream, &block).select { |element| element["action"] == "append" && element["target"] == "toasts" }
+    end
+
     # Jumlah query SQL (tanpa SCHEMA/TRANSACTION) yang dijalankan blok, termasuk yang dilayani query cache
     # (query cache aktif lintas request di tes integrasi). Untuk menjaga halaman bebas N+1.
     def count_queries(&block)

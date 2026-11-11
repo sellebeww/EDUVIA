@@ -1,10 +1,17 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% content_for :title, "Tandai Guru Berhalangan" %>
+<% planned = @plan.present? && !@error %>
 <div class="page-head">
-  <p class="crumb"><%= link_to "← Jam Kosong", curriculum_root_path %></p>
+  <p class="crumb"><%= link_to curriculum_root_path do %><%= icon("arrow-left", size: 16) %>Jam Kosong<% end %></p>
   <h1>Tandai Guru Berhalangan</h1>
   <p class="page-head__sub">Pilih guru dan tanggal, lihat dampaknya, lalu aktifkan kit siaga dengan satu tombol.</p>
 </div>
+
+<ol class="stepper" aria-label="Langkah">
+  <li class="stepper__item <%= "is-done" if planned %>" <%= tag.attributes(aria: { current: ("step" unless planned) }) %>><span class="stepper__no"><%= planned ? icon("check", size: 14) : 1 %></span>Pilih guru dan tanggal</li>
+  <li class="stepper__item" <%= tag.attributes(aria: { current: ("step" if planned) }) %>><span class="stepper__no">2</span>Lihat dampak</li>
+  <li class="stepper__item"><span class="stepper__no">3</span>Aktifkan</li>
+</ol>
 
 <div class="card card--form">
   <%= form_with url: new_curriculum_absence_path, method: :get, class: "form", data: { turbo_frame: "preview", turbo_action: "advance" } do |form| %>
@@ -19,7 +26,7 @@
     </div>
     <div class="field"><%= form.label :note, "Catatan (opsional)" %>
       <%= form.text_field :note, value: @note, maxlength: 200 %></div>
-    <div class="form-actions"><%= form.submit "Lihat dampak", class: "btn btn--secondary" %></div>
+    <div class="form-actions"><%= form.button type: "submit", class: "btn btn--secondary" do %><%= icon("clock", size: 18) %>Lihat dampak<% end %></div>
   <% end %>
 </div>
 

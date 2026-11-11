@@ -19,7 +19,7 @@ class AuthenticationTest < ActionDispatch::IntegrationTest
       follow_redirect! if response.redirect? # laporan: /reports -> /reports/YYYY-MM
       assert_response :success
       assert_select "h1", heading
-      assert_select ".user-menu .badge", users(role).role_label
+      assert_select ".user-menu__role", users(role).role_label
     end
   end
 

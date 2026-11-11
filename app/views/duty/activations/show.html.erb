@@ -2,7 +2,7 @@
 <% content_for :title, @activation.label %>
 <div class="page-head page-head--row">
   <div>
-    <p class="crumb"><%= link_to "← Kit Hari Ini", duty_root_path %></p>
+    <p class="crumb"><%= link_to duty_root_path do %><%= icon("arrow-left", size: 16) %>Kit Hari Ini<% end %></p>
     <h1><%= @activation.label %></h1>
     <p class="page-head__sub"><%= date_heading(@activation.date) %> · <%= @activation.slot_label %> · Menggantikan <%= @activation.absence.teacher.name %> (<%= @activation.absence.reason_label %>)</p>
   </div>
@@ -10,7 +10,7 @@
 </div>
 
 <% if @activation.warning_codes.any? %>
-  <div class="alert alert--warn" role="status"><ul class="alert__list"><% @activation.warnings.each do |w| %><li><%= w %></li><% end %></ul></div>
+  <div class="alert alert--warn" role="status"><%= icon("alert") %><div class="alert__body"><ul class="alert__list"><% @activation.warnings.each do |w| %><li><%= w %></li><% end %></ul></div></div>
 <% end %>
 
 <% if @activation.kit %>
@@ -24,7 +24,7 @@
     <section class="card">
       <h2 class="card__title">Lembar soal</h2>
       <% if kit.worksheet.attached? %>
-        <p><%= link_to "Unduh #{kit.worksheet.filename}", worksheet_duty_activation_path(@activation), class: "btn btn--secondary" %></p>
+        <p><%= link_to worksheet_duty_activation_path(@activation), class: "btn btn--secondary" do %><%= icon("download", size: 18) %>Unduh <%= kit.worksheet.filename %><% end %></p>
       <% else %>
         <p class="muted">Tidak ada lampiran PDF. Ikuti petunjuk di samping.</p>
       <% end %>
@@ -75,10 +75,10 @@
 </section>
 
 <% if @activation.completed? %>
-  <div class="alert alert--ok" role="status">Selesai pada <%= l(@activation.completed_at, format: :long) %>. Hasil sudah dikirim ke <%= @activation.absence.teacher.name %>.</div>
+  <div class="alert alert--ok" role="status"><%= icon("check") %><div class="alert__body">Selesai pada <%= l(@activation.completed_at, format: :long) %>. Hasil sudah dikirim ke <%= @activation.absence.teacher.name %>.</div></div>
 <% else %>
   <div class="finish">
-    <%= button_to "Selesai dan kirim hasil ke guru", complete_duty_activation_path(@activation), method: :patch, class: "btn btn--primary btn--lg",
-          form: { data: { turbo_confirm: "Selesaikan jam ini? Setelah itu lembar tidak bisa diubah dan kit ditandai terpakai." } }, data: { turbo_submits_with: "Menyimpan..." } %>
+    <%= button_to complete_duty_activation_path(@activation), method: :patch, class: "btn btn--primary btn--lg",
+          form: { data: { turbo_confirm: "Selesaikan jam ini? Setelah itu lembar tidak bisa diubah dan kit ditandai terpakai." } }, data: { turbo_submits_with: "Menyimpan..." } do %><%= icon("check", size: 20) %>Selesai dan kirim hasil ke guru<% end %>
   </div>
 <% end %>

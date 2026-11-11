@@ -1,27 +1,52 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <%# locals: (activations:) %>
-<div id="curriculum-activations">
+<div id="curriculum-activations" class="live-region">
   <% if activations.empty? %>
     <%= render "shared/empty_state", title: "Belum ada jam kosong", body: "Tandai guru yang berhalangan, dan kit siaga langsung dikirim ke guru piket." %>
   <% else %>
-    <% attention = activations.count { |a| a.warning_codes.any? } %>
+    <% today = activations.select { |a| a.date == Date.current } %>
+    <% if today.any? %>
+      <% total = today.size %>
+      <% done = today.count(&:completed?) %>
+      <% waiting = today.count { |a| !a.completed? && a.invigilator_id.nil? } %>
+      <% fallback = today.count { |a| !a.completed? && a.invigilator_id && a.kit_id.nil? } %>
+      <% with_kit = total - done - waiting - fallback %>
+      <% covered = today.count { |a| a.kit_id } %>
+      <section class="card cover" aria-labelledby="cover-title">
+        <div class="cover__head">
+          <p class="cover__big" id="cover-title"><strong><%= covered %> dari <%= total %></strong>jam hari ini dibantu kit</p>
+          <span class="muted"><%= percent_of(covered, total) %> cakupan kit</span>
+        </div>
+        <div class="cover__bar" role="img" aria-label="<%= done %> selesai, <%= with_kit %> berjalan dengan kit, <%= fallback %> mode cadangan, <%= waiting %> menunggu guru piket">
+          <% { done: done, kit: with_kit, fallback: fallback, wait: waiting }.each do |name, n| %><% next if n.zero? %><span class="cover__seg cover__seg--<%= name %>" style="--w: <%= (n * 100.0 / total).round(1) %>%"></span><% end %>
+        </div>
+        <ul class="cover__legend">
+          <li><span class="cover__dot cover__seg--kit"></span><%= with_kit %> berjalan dengan kit</li>
+          <li><span class="cover__dot cover__seg--fallback"></span><%= fallback %> mode cadangan</li>
+          <li><span class="cover__dot cover__seg--wait"></span><%= waiting %> menunggu piket</li>
+          <li><span class="cover__dot cover__seg--done"></span><%= done %> selesai</li>
+        </ul>
+      </section>
+    <% end %>
+
+    <% attention = activations.count { |a| !a.completed? && a.warning_codes.any? } %>
     <% if attention.positive? %>
-      <div class="alert alert--warn" role="status"><strong><%= attention %> kelas perlu perhatian.</strong> Lihat peringatan pada baris di bawah, lalu lengkapi kit atau penugasan piket.</div>
+      <div class="alert alert--warn" role="status"><%= icon("alert") %><div class="alert__body"><strong><%= attention %> kelas perlu perhatian.</strong> Lihat peringatan pada baris di bawah, lalu lengkapi kit atau penugasan piket.</div></div>
     <% end %>
 
     <% activations.group_by(&:date).each do |date, rows| %>
       <section class="day-group" aria-label="<%= date_heading(date) %>">
         <h2 class="day-group__title"><%= date_heading(date) %></h2>
-        <div class="table-wrap"><table class="table">
+        <div class="table-wrap"><table class="table table--stack">
           <caption class="sr-only">Jam kosong <%= date_heading(date) %></caption>
           <thead><tr><th scope="col">Jam</th><th scope="col">Kelas</th><th scope="col">Guru berhalangan</th><th scope="col">Kit</th><th scope="col">Guru piket</th><th scope="col">Status</th></tr></thead>
           <tbody>
             <% rows.each do |activation| %>
-              <tr id="<%= dom_id(activation, :row) %>">
+              <tr id="<%= dom_id(activation, :row) %>" class="<%= "is-new" if !activation.completed? && activation.activated_at > 20.seconds.ago %>">
                 <th scope="row"><%= activation.period.display_name %><br><small class="muted"><%= activation.period.time_range %></small></th>
-                <td><strong><%= activation.school_class.name %></strong><br><small class="muted"><%= activation.subject.name %></small></td>
-                <td><%= activation.absence.teacher.name %><br><small class="muted"><%= activation.absence.reason_label %></small></td>
-                <td>
+                <td data-label="Kelas"><strong><%= activation.school_class.name %></strong><br><small class="muted"><%= activation.subject.name %></small></td>
+                <td data-label="Guru berhalangan"><%= activation.absence.teacher.name %><br><small class="muted"><%= activation.absence.reason_label %></small></td>
+                <td data-label="Kit">
                   <% if activation.kit %>
                     <%= activation.kit.title %>
                     <% if activation.reused %><span class="badge">Pakai ulang</span><% end %>
@@ -29,10 +54,10 @@
                     <span class="badge badge--warn">Mode cadangan</span>
                   <% end %>
                 </td>
-                <td><%= activation.invigilator ? activation.invigilator.name : tag.span("Belum ada", class: "badge badge--warn") %></td>
-                <td><%= activation_status_badge(activation) %></td>
+                <td data-label="Guru piket"><%= activation.invigilator ? activation.invigilator.name : tag.span("Belum ada", class: "badge badge--warn") %></td>
+                <td data-label="Status"><%= activation_status_badge(activation) %></td>
               </tr>
-              <% if activation.warning_codes.any? %>
+              <% if !activation.completed? && activation.warning_codes.any? %>
                 <tr class="row-note"><td></td><td colspan="5"><ul class="note-list"><% activation.warnings.each do |w| %><li><%= w %></li><% end %></ul></td></tr>
               <% end %>
             <% end %>

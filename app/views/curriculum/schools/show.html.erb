@@ -3,14 +3,14 @@
 <div class="page-head"><h1>Data Sekolah</h1><p class="page-head__sub">Pengaturan dasar dan data master. Jam pelajaran dan hari aktif berbeda di tiap sekolah, jadi semuanya bisa diatur di sini.</p></div>
 
 <div class="grid grid--3">
-  <%= link_to curriculum_school_classes_path, class: "card card--link" do %>
-    <span class="card__stat"><%= @school.school_classes.count %></span><span class="card__label">Kelas</span>
+  <%= link_to curriculum_school_classes_path, class: "card card--link stat" do %>
+    <span class="stat__icon"><%= icon("school", size: 34) %></span><span class="card__stat"><%= @school.school_classes.count %></span><span class="card__label">Kelas</span>
   <% end %>
-  <%= link_to curriculum_subjects_path, class: "card card--link" do %>
-    <span class="card__stat"><%= @school.subjects.count %></span><span class="card__label">Mapel</span>
+  <%= link_to curriculum_subjects_path, class: "card card--link stat" do %>
+    <span class="stat__icon"><%= icon("doc", size: 34) %></span><span class="card__stat"><%= @school.subjects.count %></span><span class="card__label">Mapel</span>
   <% end %>
-  <%= link_to curriculum_periods_path, class: "card card--link" do %>
-    <span class="card__stat"><%= @school.periods.count %></span><span class="card__label">Jam pelajaran</span>
+  <%= link_to curriculum_periods_path, class: "card card--link stat" do %>
+    <span class="stat__icon"><%= icon("clock", size: 34) %></span><span class="card__stat"><%= @school.periods.count %></span><span class="card__label">Jam pelajaran</span>
   <% end %>
 </div>
 

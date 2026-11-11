@@ -7,7 +7,7 @@
     <span class="templates__label">Mulai dari templat:</span>
     <% KitTemplate.all.each do |t| %>
       <%= link_to new_kit_path(template: t.key, assignment: selected), class: "template", aria: { current: (params[:template] == t.key ? "true" : nil) } do %>
-        <strong><%= t.name %></strong><span><%= t.summary %></span>
+        <%= icon({ "latihan_soal" => "kit", "baca_rangkum" => "doc", "proyek_mini" => "pencil" }.fetch(t.key, "kit"), size: 22) %><strong><%= t.name %></strong><span><%= t.summary %></span>
       <% end %>
     <% end %>
   </div>

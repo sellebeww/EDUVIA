@@ -3,8 +3,11 @@
 <%= turbo_stream_from "curriculum_#{current_school.id}" %>
 
 <div class="page-head page-head--row">
-  <div><h1>Jam Kosong Hari Ini</h1><p class="page-head__sub">Pantau kelas kosong dan aktifkan kit siaga dengan satu tombol. Daftar diperbarui otomatis.</p></div>
-  <%= link_to "Tandai guru berhalangan", new_curriculum_absence_path, class: "btn btn--primary" %>
+  <div>
+    <div class="page-head__title"><h1>Jam Kosong Hari Ini</h1><%= render "shared/live_pill" %></div>
+    <p class="page-head__sub"><%= l(Date.current, format: "%A, %d %B %Y") %> · pantau kelas kosong dan aktifkan kit siaga dengan satu tombol.</p>
+  </div>
+  <%= link_to new_curriculum_absence_path, class: "btn btn--primary" do %><%= icon("plus", size: 18) %>Tandai guru berhalangan<% end %>
 </div>
 
 <%= render "curriculum/dashboards/activations", activations: @activations %>

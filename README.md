@@ -24,7 +24,7 @@ MVP sedang dibangun bertahap. Rencana lengkap: [docs/PLAN.md](docs/PLAN.md). Kep
 | 3 | Bank kit: CRUD, templat, lampiran PDF, filter | selesai |
 | 4 | Aktivasi satu tombol + realtime (Turbo Streams, Solid Cable) | selesai |
 | 5 | Kehadiran, pengumpulan, hasil ke guru mapel, laporan bulanan | selesai |
-| 6 | Poles dan serah terima | belum |
+| 6 | Poles dan serah terima | UI/UX selesai; Postman, DEMO.md, review keamanan, Known limitations belum |
 
 ## Stack
 
@@ -71,6 +71,15 @@ app/assets/stylesheets/     tokens.css, base.css, layout.css, components.css (CS
 logo/                       logo EDUVIA (SVG beranimasi, PNG transparan, favicon) + build.mjs
 docs/                       rencana, keputusan, ide lanjutan
 ```
+
+## Desain dan aksesibilitas
+
+- Tampilan dibangun dari logo EDUVIA: navy dan biru listrik, tanda "halaman bertumpuk + centang". Kartu guru piket berbentuk **slip jadwal**, kartu kit bertumpuk seperti halaman di logo, dan jadwal menandai **hari ini**.
+- Font **Plus Jakarta Sans** (lisensi OFL, ada di `app/assets/fonts/`), dipasang lokal tanpa CDN.
+- Mode terang dan gelap otomatis mengikuti sistem. Kontras semua pasangan warna diaudit (WCAG AA, ≥ 4,5:1).
+- Gerak hanya untuk menjelaskan perubahan dan **mati seluruhnya** bila pengguna memilih "kurangi gerakan".
+- Responsif: menu menggulir di ponsel, tabel jam kosong menjadi kartu bertumpuk, target sentuh ≥ 44 px, pintasan "Lewati ke konten utama", fokus papan ketik terlihat.
+- CSS murni tanpa framework, dipecah per lapisan (`@layer`) di `app/assets/stylesheets/`.
 
 ## Author & License
 
