@@ -89,10 +89,10 @@ SUPERVISOR = "Bagikan lembar kerja, pastikan siswa duduk tenang dan mengerjakan 
              "Anda tidak perlu menguasai materi: cukup awasi dan kumpulkan hasil di akhir jam. Isi lembar kehadiran dan pengumpulan di aplikasi."
 
 [
-  [ "sari", "MTK", "VII A", :disiapkan ], [ "sari", "MTK", "VII B", :terpakai ], [ "sari", "MTK", "VIII A", :disiapkan ], [ "sari", "MTK", "IX A", :disiapkan ],
-  [ "budi", "IPA", "VII A", :disiapkan ], [ "budi", "IPA", "VII B", :disiapkan ],
+  [ "sari", "MTK", "VII A", :disiapkan ], [ "sari", "MTK", "VII B", :terpakai ], [ "sari", "MTK", "VIII A", :disiapkan ], [ "sari", "MTK", "IX A", :terpakai ],
+  [ "budi", "IPA", "VII A", :disiapkan ], [ "budi", "IPA", "VII B", :terpakai ],
   [ "dewi", "BIN", "VII A", :disiapkan ], [ "dewi", "BIN", "VIII A", :terpakai ], [ "dewi", "BIG", "VII A", :disiapkan ],
-  [ "andi", "IPS", "VII A", :disiapkan ]
+  [ "andi", "IPS", "VII A", :terpakai ]
 ].each do |handle, code, class_name, status|
   title, task = TOPICS.fetch(code)
   duration = 30 + (code.sum % 3) * 5 # 30, 35, atau 40 menit
@@ -119,5 +119,48 @@ duty_dates.each_with_index do |date, i|
   DutyAssignment.find_or_create_by!(user: hendra, date: date) if i < 3
 end
 
+# --- Riwayat dua bulan sebelumnya, supaya laporan bulanan tidak kosong ---
+# Dua bulan lalu belum ada kit sama sekali (semua mode cadangan); bulan lalu kit yang berstatus "terpakai" sudah dipakai.
+# Hanya dibuat sekali (aman dijalankan berulang) dan hanya memakai kit yang statusnya sudah "terpakai", supaya konsisten.
+wakur = User.find_by!(email_address: "ratna@siaga.test")
+invigilators = [ rina, hendra ]
+reasons = %w[sakit izin dinas sakit lainnya sakit]
+rotation = %w[sari sari budi sari dewi andi].map { |h| User.find_by!(email_address: "#{h}@siaga.test") }
+kit_usage = Hash.new { |h, k| h[k] = { count: 0, last: nil } }
+{ 2 => [ 1, 5, 9, 14 ], 1 => [ 0, 2, 4, 6, 9, 11, 13, 16 ] }.each do |months_back, picks|
+  month = Date.current.beginning_of_month << months_back
+  workdays = (month..month.end_of_month).select { |d| school.active_days.include?(d.cwday) }
+  picks.each_with_index do |index, n|
+    date = workdays[index] or next
+    teacher = rotation[n % rotation.size]
+    absence = Absence.find_or_create_by!(teacher: teacher, date: date) { |a| a.reason = reasons[n % reasons.size]; a.created_by = wakur }
+
+    teacher.lessons.where(day_of_week: date.cwday).joins(:period).order("periods.number").each_with_index do |lesson, i|
+      next if Activation.exists?(absence: absence, lesson: lesson)
+
+      kit = months_back == 2 ? nil : Kit.terpakai.find_by(user: teacher, subject: lesson.subject, school_class: lesson.school_class)
+      started = date.in_time_zone.change(hour: 7)
+      activation = Activation.create!(
+        absence: absence, lesson: lesson, kit: kit, invigilator: invigilators[(n + i) % 2], activated_at: started, completed_at: started + 5.hours,
+        reused: kit.present? && kit_usage[kit.id][:count].positive?, warning_codes: kit ? [] : [ "no_kit" ]
+      )
+      if kit
+        kit_usage[kit.id][:count] += 1
+        kit_usage[kit.id][:last] = started
+      end
+
+      stamp = { created_at: started, updated_at: started }
+      Student.where(school_class_id: lesson.school_class_id).order(:roll_number).each_with_index do |student, j|
+        present = (j + n + i) % 7 != 0
+        submitted = present && (j + i) % 5 != 0
+        AttendanceRecord.insert_all([ { activation_id: activation.id, student_id: student.id, status: present ? "hadir" : "tidak_hadir", **stamp } ])
+        Submission.insert_all([ { activation_id: activation.id, student_id: student.id, submitted: submitted, score: submitted ? 60 + ((j * 7 + n * 3 + i * 11) % 41) : nil,
+                                  submitted_at: (started + 4.hours if submitted), **stamp } ])
+      end
+    end
+  end
+end
+kit_usage.each { |id, usage| Kit.find(id).update_columns(times_used: usage[:count], last_used_at: usage[:last]) }
+
 puts "Seed selesai: #{School.count} sekolah, #{User.count} pengguna, #{SchoolClass.count} kelas, #{Subject.count} mapel, " \
-     "#{Lesson.count} jadwal, #{Kit.count} kit, #{DutyAssignment.count} penugasan piket."
+     "#{Lesson.count} jadwal, #{Kit.count} kit, #{DutyAssignment.count} penugasan piket, #{Activation.completed.count} riwayat jam kosong."
