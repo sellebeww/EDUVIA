@@ -7,12 +7,15 @@
 class Kit < ApplicationRecord
   class InvalidTransition < StandardError; end
 
+  MAX_WORKSHEET_SIZE = 5.megabytes
+
   STATUS_LABELS = { "disiapkan" => "Disiapkan", "aktif" => "Aktif", "terpakai" => "Terpakai" }.freeze
 
   belongs_to :user
   belongs_to :subject
   belongs_to :school_class
   has_many :activations, dependent: :restrict_with_error
+  has_one_attached :worksheet
 
   enum :status, STATUS_LABELS.keys.index_with(&:itself), default: "disiapkan", validate: true
 
@@ -25,6 +28,7 @@ class Kit < ApplicationRecord
   validates :duration_minutes, presence: true, numericality: { only_integer: true, in: 30..40 }
   validate :owner_must_be_subject_teacher
   validate :owner_must_teach_subject_in_class
+  validate :worksheet_must_be_pdf
 
   scope :by_subject, ->(id) { id.present? ? where(subject_id: id) : all }
   scope :by_class, ->(id) { id.present? ? where(school_class_id: id) : all }
@@ -32,6 +36,9 @@ class Kit < ApplicationRecord
   scope :recent, -> { order(updated_at: :desc) }
 
   def status_label = STATUS_LABELS.fetch(status)
+
+  # Kit yang sedang dipakai di kelas tidak boleh diubah atau dihapus.
+  def editable? = !aktif?
 
   def activate!
     transition!(from: "disiapkan", to: "aktif")
@@ -62,6 +69,29 @@ class Kit < ApplicationRecord
 
     def derive_phase
       self.phase = school_class&.phase
+    end
+
+    # Hanya memeriksa lampiran yang baru diunggah: tipe, ukuran, dan magic byte "%PDF-".
+    # Content-type dari klien (dan dari Marcel untuk berkas teks) bisa dipalsukan, jadi isi berkas dicek langsung.
+    def worksheet_must_be_pdf
+      change = attachment_changes["worksheet"]
+      blob = change&.blob
+      return unless blob
+      errors.add(:worksheet, "maksimal #{MAX_WORKSHEET_SIZE / 1.megabyte} MB") if blob.byte_size > MAX_WORKSHEET_SIZE
+      errors.add(:worksheet, "harus berupa berkas PDF") unless blob.content_type == "application/pdf" && pdf_signature?(change.attachable)
+    end
+
+    def pdf_signature?(attachable)
+      io = case attachable
+      when ActiveStorage::Blob then return true # sudah divalidasi saat pertama diunggah (mis. salinan kit)
+      when Hash then attachable[:io]
+      else attachable.respond_to?(:tempfile) ? attachable.tempfile : attachable
+      end
+      return false unless io.respond_to?(:read)
+      io.rewind
+      head = io.read(5)
+      io.rewind
+      head == "%PDF-"
     end
 
     def owner_must_be_subject_teacher

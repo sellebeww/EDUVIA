@@ -56,6 +56,65 @@ class KitTest < ActiveSupport::TestCase
     assert_equal Kit.count, Kit.by_subject(nil).by_class("").by_phase(nil).count
   end
 
+  # --- lampiran PDF ---
+  def attach_file(kit, fixture, content_type: "application/pdf", filename: nil)
+    kit.worksheet.attach(io: File.open(file_fixture(fixture)), filename: filename || fixture, content_type: content_type)
+  end
+
+  test "tanpa lampiran tetap valid" do
+    assert build.valid?
+  end
+
+  test "PDF asli diterima" do
+    kit = build
+    attach_file(kit, "lembar-kerja.pdf")
+    assert kit.valid?, kit.errors.full_messages.to_s
+    assert kit.save
+    assert kit.worksheet.attached?
+  end
+
+  test "teks yang dinamai .pdf dan mengaku application/pdf ditolak (cek isi berkas)" do
+    kit = build
+    attach_file(kit, "palsu.pdf")
+    assert_not kit.valid?
+    assert_includes kit.errors[:worksheet].join, "PDF"
+  end
+
+  test "berkas bukan PDF ditolak walau ekstensi .pdf" do
+    kit = build
+    kit.worksheet.attach(io: StringIO.new("\x89PNG\r\n\x1a\n" + "x" * 50), filename: "gambar.pdf", content_type: "image/png")
+    assert_not kit.valid?
+  end
+
+  test "PDF lebih dari 5 MB ditolak" do
+    kit = build
+    big = "%PDF-1.4\n" + ("a" * (5.megabytes + 1))
+    kit.worksheet.attach(io: StringIO.new(big), filename: "besar.pdf", content_type: "application/pdf")
+    assert_not kit.valid?
+    assert_includes kit.errors[:worksheet].join, "5 MB"
+  end
+
+  test "PDF tepat 5 MB diterima" do
+    kit = build
+    exact = "%PDF-1.4\n" + ("a" * (5.megabytes - 9))
+    kit.worksheet.attach(io: StringIO.new(exact), filename: "pas.pdf", content_type: "application/pdf")
+    assert kit.valid?, kit.errors.full_messages.to_s
+  end
+
+  test "kit lama dengan lampiran tetap bisa diubah tanpa divalidasi ulang" do
+    kit = build
+    attach_file(kit, "lembar-kerja.pdf")
+    kit.save!
+    kit = Kit.find(kit.id)
+    assert kit.update(title: "Judul baru")
+  end
+
+  test "editable hanya bila tidak aktif" do
+    assert kits(:mtk_7a_siap).editable?
+    assert kits(:mtk_7a_terpakai).editable?
+    assert_not kits(:mtk_7a_siap).tap(&:activate!).editable?
+  end
+
   # --- transisi status ---
   VALID = { activate!: %w[disiapkan aktif], complete!: %w[aktif terpakai], reuse!: %w[terpakai aktif] }.freeze
 
