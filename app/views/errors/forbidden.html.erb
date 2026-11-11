@@ -1,0 +1,5 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Akses ditolak" %>
+<div class="page-head"><h1>Akses ditolak</h1></div>
+<%= render "shared/empty_state", title: "Halaman ini bukan untuk peran Anda", body: "Peran Anda tidak memiliki izin untuk membuka halaman tersebut." %>
+<p class="center"><%= link_to "Kembali ke beranda", home_path_for(current_user), class: "btn btn--primary" %></p>
