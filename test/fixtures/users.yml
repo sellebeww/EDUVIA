@@ -1,9 +1,29 @@
-<% password_digest = BCrypt::Password.create("password") %>
+<% digest = BCrypt::Password.create("password", cost: 4) %>
 
-one:
-  email_address: one@example.com
-  password_digest: <%= password_digest %>
+guru_mapel:
+  school: smp
+  name: Sari Wulandari
+  email_address: guru.mapel@example.test
+  password_digest: <%= digest %>
+  role: guru_mapel
 
-two:
-  email_address: two@example.com
-  password_digest: <%= password_digest %>
+guru_piket:
+  school: smp
+  name: Rina Marlina
+  email_address: guru.piket@example.test
+  password_digest: <%= digest %>
+  role: guru_piket
+
+wakil_kurikulum:
+  school: smp
+  name: Ratna Kusumawati
+  email_address: wakil.kurikulum@example.test
+  password_digest: <%= digest %>
+  role: wakil_kurikulum
+
+kepala_sekolah:
+  school: smp
+  name: Bambang Hartono
+  email_address: kepala.sekolah@example.test
+  password_digest: <%= digest %>
+  role: kepala_sekolah

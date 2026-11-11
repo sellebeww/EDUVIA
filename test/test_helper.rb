@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
@@ -10,7 +11,13 @@ module ActiveSupport
 
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
+  end
+end
 
-    # Add more helper methods to be used by all tests here...
+class ActionDispatch::IntegrationTest
+  # Masuk lewat form login sungguhan (semua fixture memakai kata sandi "password").
+  def log_in_as(user_or_role)
+    user = user_or_role.is_a?(User) ? user_or_role : users(user_or_role)
+    post session_path, params: { email_address: user.email_address, password: "password" }
   end
 end
