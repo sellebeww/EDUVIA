@@ -1,0 +1,3195 @@
+{
+  "info": {
+    "name": "Siaga Kelas",
+    "description": "Koleksi uji untuk Siaga Kelas. Aplikasi memakai sesi + CSRF (bukan API JSON), jadi tiap folder masuk sebagai satu peran, menjalankan skenarionya, lalu keluar. Jalankan berurutan (Collection Runner atau newman). Prasyarat: `docker compose up` dan data seed. Lihat README bagian Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Setiap respons HTML menyegarkan token CSRF untuk permintaan berikutnya.",
+          "const m = pm.response.text().match(/name=\"csrf-token\" content=\"([^\"]+)\"/);",
+          "if (m) pm.collectionVariables.set('csrf', m[1]);",
+          "pm.test('Bukan galat server (< 500)', () => pm.expect(pm.response.code).to.be.below(500));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "demo_password",
+      "value": "siaga2026"
+    },
+    {
+      "key": "csrf",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Kesehatan dan keamanan dasar",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/up",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "up"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Halaman masuk memuat header keamanan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('CSP: sumber sendiri dan nonce', () => { const csp = pm.response.headers.get('Content-Security-Policy'); pm.expect(csp).to.include(\"default-src 'self'\"); pm.expect(csp).to.match(/script-src 'self' 'nonce-/); pm.expect(csp).to.include(\"frame-ancestors 'none'\"); });",
+                  "pm.test('X-Content-Type-Options: nosniff', () => pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.eql('nosniff'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tanpa login: Bank Kit dialihkan ke halaman masuk",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/session\\/new/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Tanpa login: aktivasi dialihkan ke halaman masuk",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2030-01-07"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/session\\/new/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Tanpa login dan tanpa token CSRF: ditolak (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Masuk tanpa token CSRF ditolak (422)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "sari@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            },
+            "description": "Perlindungan CSRF aktif: formulir tanpa authenticity token tidak diproses."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Kata sandi salah: kembali ke halaman masuk dengan pesan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kata sandi salah",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "sari@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "salah-sekali"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/session\\/new/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Pesan galat tampil",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Email atau kata sandi salah.\", () => pm.expect(pm.response.text()).to.include(\"Email atau kata sandi salah.\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Guru mapel: bank kit",
+      "item": [
+        {
+          "name": "Ambil token CSRF (Guru Mapel)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            },
+            "description": "Menyiapkan cookie sesi dan token CSRF (dibaca dari <meta name=csrf-token>)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Masuk ke Siaga Kelas\", () => pm.expect(pm.response.text()).to.include(\"Masuk ke Siaga Kelas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masuk sebagai Guru Mapel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "sari@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login diterima: dialihkan keluar dari halaman masuk', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.not.include('/session/new'); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Beranda Guru Mapel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Halaman peran terbuka (ada tombol Keluar)\", () => pm.expect(pm.response.text()).to.include(\"Keluar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bank kit: daftar, statistik, dan saran kelas tanpa kit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            },
+            "description": "Mengambil pasangan kelas+mapel pertama yang belum punya kit dari tautan saran."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Bank Kit Saya\", () => pm.expect(pm.response.text()).to.include(\"Bank Kit Saya\"));",
+                  "pm.test(\"Memuat: Belum punya kit\", () => pm.expect(pm.response.text()).to.include(\"Belum punya kit\"));",
+                  "{ const m = pm.response.text().match(/href=\\\"\\/kits\\/new\\?assignment=([^&\\\"]+)&amp;template=latihan_soal\\\"/); if (m) pm.collectionVariables.set('assignment', decodeURIComponent(m[1])); pm.test('Menemukan assignment', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter bank kit berdasarkan fase",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits?phase=D",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ],
+              "query": [
+                {
+                  "key": "phase",
+                  "value": "D"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: kit-card\", () => pm.expect(pm.response.text()).to.include(\"kit-card\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter tanpa hasil menampilkan keadaan kosong",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits?phase=A",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ],
+              "query": [
+                {
+                  "key": "phase",
+                  "value": "A"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Tidak ada kit yang cocok\", () => pm.expect(pm.response.text()).to.include(\"Tidak ada kit yang cocok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Formulir kit baru terisi templat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits/new?assignment={{assignment}}&template=latihan_soal",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "new"
+              ],
+              "query": [
+                {
+                  "key": "assignment",
+                  "value": "{{assignment}}"
+                },
+                {
+                  "key": "template",
+                  "value": "latihan_soal"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Latihan Soal Mandiri\", () => pm.expect(pm.response.text()).to.include(\"Latihan Soal Mandiri\"));",
+                  "pm.test(\"Memuat: 35 menit\", () => pm.expect(pm.response.text()).to.include(\"35 menit\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buat kit (templat, tanpa PDF)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "kit[assignment]",
+                  "value": "{{assignment}}"
+                },
+                {
+                  "key": "kit[title]",
+                  "value": "Kit Uji Postman"
+                },
+                {
+                  "key": "kit[duration_minutes]",
+                  "value": "35"
+                },
+                {
+                  "key": "kit[supervisor_instructions]",
+                  "value": "Awasi dan kumpulkan hasil. Anda tidak perlu menguasai materi."
+                },
+                {
+                  "key": "kit[answer_key]",
+                  "value": "1) A  2) B"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits\\/\\d+$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits\\/\\d+$/); });",
+                  "pm.collectionVariables.set('kit_id', pm.response.headers.get('Location').match(/\\/kits\\/(\\d+)/)[1]);"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Detail kit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Kit Uji Postman\", () => pm.expect(pm.response.text()).to.include(\"Kit Uji Postman\"));",
+                  "pm.test(\"Memuat: Disiapkan\", () => pm.expect(pm.response.text()).to.include(\"Disiapkan\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ubah kit",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "kit[assignment]",
+                  "value": "{{assignment}}"
+                },
+                {
+                  "key": "kit[title]",
+                  "value": "Kit Uji Postman (diubah)"
+                },
+                {
+                  "key": "kit[duration_minutes]",
+                  "value": "40"
+                },
+                {
+                  "key": "kit[supervisor_instructions]",
+                  "value": "Petunjuk diperbarui."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits\\/\\d+$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits\\/\\d+$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Judul berubah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Kit Uji Postman (diubah)\", () => pm.expect(pm.response.text()).to.include(\"Kit Uji Postman (diubah)\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validasi: durasi di luar 30-40 ditolak (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "kit[assignment]",
+                  "value": "{{assignment}}"
+                },
+                {
+                  "key": "kit[title]",
+                  "value": "X"
+                },
+                {
+                  "key": "kit[duration_minutes]",
+                  "value": "99"
+                },
+                {
+                  "key": "kit[supervisor_instructions]",
+                  "value": "x"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test(\"Memuat: Durasi\", () => pm.expect(pm.response.text()).to.include(\"Durasi\"));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Unggah PDF asli pada kit baru",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "kit[assignment]",
+                  "value": "{{assignment}}",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[title]",
+                  "value": "Kit dengan PDF",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[duration_minutes]",
+                  "value": "30",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[supervisor_instructions]",
+                  "value": "Bagikan lembar soal.",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[worksheet]",
+                  "type": "file",
+                  "src": "files/lembar-kerja.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits\\/\\d+$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits\\/\\d+$/); });",
+                  "pm.collectionVariables.set('kit_pdf_id', pm.response.headers.get('Location').match(/\\/kits\\/(\\d+)/)[1]);"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Unduh PDF: attachment, application/pdf, mulai %PDF-",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_pdf_id}}/worksheet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_pdf_id}}",
+                "worksheet"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type PDF', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'));",
+                  "pm.test('Disposition attachment', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));",
+                  "pm.test('Isi dimulai %PDF-', () => pm.expect(pm.response.text().startsWith('%PDF-')).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Teks berpura-pura PDF ditolak (cek isi berkas)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "kit[assignment]",
+                  "value": "{{assignment}}",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[title]",
+                  "value": "Kit palsu",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[duration_minutes]",
+                  "value": "30",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[supervisor_instructions]",
+                  "value": "x",
+                  "type": "text"
+                },
+                {
+                  "key": "kit[worksheet]",
+                  "type": "file",
+                  "src": "files/palsu.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test(\"Memuat: Lampiran PDF\", () => pm.expect(pm.response.text()).to.include(\"Lampiran PDF\"));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Duplikat kit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_id}}/duplicate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_id}}",
+                "duplicate"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits\\/\\d+\\/edit$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits\\/\\d+\\/edit$/); });",
+                  "pm.collectionVariables.set('kit_copy_id', pm.response.headers.get('Location').match(/\\/kits\\/(\\d+)/)[1]);"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Hapus salinan",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_copy_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_copy_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits$/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Hapus kit uji",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits$/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Hapus kit uji PDF",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kits/{{kit_pdf_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits",
+                "{{kit_pdf_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/kits$/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/\\/kits$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Guru mapel tidak boleh membuka halaman wakil kurikulum (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
+                  "pm.test(\"Memuat: Akses ditolak\", () => pm.expect(pm.response.text()).to.include(\"Akses ditolak\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guru mapel tidak boleh mengaktifkan (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "{{absence_date}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Keluar (Guru Mapel)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /session\\/new/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Wakil kurikulum: aktivasi satu tombol",
+      "item": [
+        {
+          "name": "Ambil token CSRF (Wakil Kurikulum)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            },
+            "description": "Menyiapkan cookie sesi dan token CSRF (dibaca dari <meta name=csrf-token>)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Masuk ke Siaga Kelas\", () => pm.expect(pm.response.text()).to.include(\"Masuk ke Siaga Kelas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masuk sebagai Wakil Kurikulum",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "ratna@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login diterima: dialihkan keluar dari halaman masuk', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.not.include('/session/new'); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Beranda Wakil Kurikulum",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Halaman peran terbuka (ada tombol Keluar)\", () => pm.expect(pm.response.text()).to.include(\"Keluar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard jam kosong",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Jam Kosong Hari Ini\", () => pm.expect(pm.response.text()).to.include(\"Jam Kosong Hari Ini\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Jadwal pelajaran (grid per kelas)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/lessons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "lessons"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Jadwal Pelajaran\", () => pm.expect(pm.response.text()).to.include(\"Jadwal Pelajaran\"));",
+                  "pm.test(\"Memuat: timetable\", () => pm.expect(pm.response.text()).to.include(\"timetable\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Data sekolah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/school",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "school"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Hari aktif belajar\", () => pm.expect(pm.response.text()).to.include(\"Hari aktif belajar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Jam pelajaran",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/periods",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "periods"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Jam Pelajaran\", () => pm.expect(pm.response.text()).to.include(\"Jam Pelajaran\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kelas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/school_classes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "school_classes"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Fase\", () => pm.expect(pm.response.text()).to.include(\"Fase\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mapel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/subjects",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "subjects"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Matematika\", () => pm.expect(pm.response.text()).to.include(\"Matematika\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Penugasan guru piket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/duty_assignments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "duty_assignments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Penugasan Guru Piket\", () => pm.expect(pm.response.text()).to.include(\"Penugasan Guru Piket\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Formulir tandai guru berhalangan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences",
+                "new"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Tandai Guru Berhalangan\", () => pm.expect(pm.response.text()).to.include(\"Tandai Guru Berhalangan\"));",
+                  "{ const m = pm.response.text().match(/<option value=\\\"(\\d+)\\\">Andi Pratama/); if (m) pm.collectionVariables.set('teacher_id', decodeURIComponent(m[1])); pm.test('Menemukan teacher_id', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pratinjau dampak (Turbo Frame, tanpa menulis data)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Turbo-Frame",
+                "value": "preview"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences/new?teacher_id={{teacher_id}}&date={{absence_date}}&reason=sakit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences",
+                "new"
+              ],
+              "query": [
+                {
+                  "key": "teacher_id",
+                  "value": "{{teacher_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{absence_date}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                }
+              ]
+            },
+            "description": "Permintaan Turbo Frame hanya mengembalikan bingkai pratinjau."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Dampak: Andi Pratama\", () => pm.expect(pm.response.text()).to.include(\"Dampak: Andi Pratama\"));",
+                  "pm.test(\"Memuat: Aktifkan\", () => pm.expect(pm.response.text()).to.include(\"Aktifkan\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pratinjau: tanggal lewat ditolak dengan pesan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences/new?teacher_id={{teacher_id}}&date=2020-01-06",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences",
+                "new"
+              ],
+              "query": [
+                {
+                  "key": "teacher_id",
+                  "value": "{{teacher_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "2020-01-06"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: sudah lewat\", () => pm.expect(pm.response.text()).to.include(\"sudah lewat\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "AKTIFKAN (satu tombol)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "{{teacher_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{absence_date}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                },
+                {
+                  "key": "note",
+                  "value": "Uji Postman"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/curriculum$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/curriculum$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Dashboard memuat ringkasan aktivasi",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Ringkasan aktivasi tampil (baru, atau sudah diaktifkan pada putaran sebelumnya)', () => pm.expect(pm.response.text()).to.match(/kelas diaktifkan|sudah diaktifkan sebelumnya/));",
+                  "pm.test(\"Memuat: Andi Pratama\", () => pm.expect(pm.response.text()).to.include(\"Andi Pratama\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Idempoten: menekan lagi tidak menggandakan data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "{{teacher_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{absence_date}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "izin"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/curriculum$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/curriculum$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Pesan 'sudah diaktifkan sebelumnya'",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/curriculum",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: sudah diaktifkan sebelumnya\", () => pm.expect(pm.response.text()).to.include(\"sudah diaktifkan sebelumnya\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tanggal terlalu jauh ditolak",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "{{teacher_id}}"
+                },
+                {
+                  "key": "date",
+                  "value": "2099-01-05"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/curriculum\\/absences\\/new/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/curriculum\\/absences\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Keluar (Wakil Kurikulum)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /session\\/new/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Guru piket: slip, lembar, selesai",
+      "item": [
+        {
+          "name": "Ambil token CSRF (Guru Piket (Rina))",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            },
+            "description": "Menyiapkan cookie sesi dan token CSRF (dibaca dari <meta name=csrf-token>)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Masuk ke Siaga Kelas\", () => pm.expect(pm.response.text()).to.include(\"Masuk ke Siaga Kelas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masuk sebagai Guru Piket (Rina)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "rina@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login diterima: dialihkan keluar dari halaman masuk', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.not.include('/session/new'); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Beranda Guru Piket (Rina)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/duty",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Halaman peran terbuka (ada tombol Keluar)\", () => pm.expect(pm.response.text()).to.include(\"Keluar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Daftar kit hari ini (slip)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/duty",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Kit Hari Ini\", () => pm.expect(pm.response.text()).to.include(\"Kit Hari Ini\"));",
+                  "pm.test(\"Memuat: ticket\", () => pm.expect(pm.response.text()).to.include(\"ticket\"));",
+                  "pm.test(\"Berlangganan stream Turbo (realtime)\", () => pm.expect(pm.response.text()).to.include(\"turbo-cable-stream-source\"));",
+                  "{ const m = pm.response.text().match(/<article class=\\\"ticket duty-card(?![^\\\"]*done)[^\\\"]*\\\" id=\\\"activation_(\\d+)\\\"/); if (m) pm.collectionVariables.set('activation_id', decodeURIComponent(m[1])); pm.test('Menemukan activation_id', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail aktivasi: petunjuk, lembar kehadiran dan pengumpulan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Lembar kehadiran dan pengumpulan\", () => pm.expect(pm.response.text()).to.include(\"Lembar kehadiran dan pengumpulan\"));",
+                  "{ const m = pm.response.text().match(/attendance_records\\/(\\d+)\\\"/); if (m) pm.collectionVariables.set('attendance_id', decodeURIComponent(m[1])); pm.test('Menemukan attendance_id', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }",
+                  "{ const m = pm.response.text().match(/submissions\\/(\\d+)\\\"/); if (m) pm.collectionVariables.set('submission_id', decodeURIComponent(m[1])); pm.test('Menemukan submission_id', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Simpan kehadiran per baris (Turbo Stream)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/vnd.turbo-stream.html"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/attendance_records/{{attendance_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "attendance_records",
+                "{{attendance_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "attendance_record[status]",
+                  "value": "tidak_hadir"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Jawaban Turbo Stream', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('turbo-stream'));",
+                  "pm.test(\"Memuat: action=\\\"replace\\\"\", () => pm.expect(pm.response.text()).to.include(\"action=\\\"replace\\\"\"));",
+                  "pm.test(\"Memuat: sheet-summary\", () => pm.expect(pm.response.text()).to.include(\"sheet-summary\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Status kehadiran tidak valid ditolak (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/vnd.turbo-stream.html"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/attendance_records/{{attendance_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "attendance_records",
+                "{{attendance_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "attendance_record[status]",
+                  "value": "izin"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Simpan pengumpulan: dikumpulkan + nilai",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/vnd.turbo-stream.html"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/submissions/{{submission_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "submissions",
+                "{{submission_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "submission[submitted]",
+                  "value": "1"
+                },
+                {
+                  "key": "submission[score]",
+                  "value": "85"
+                },
+                {
+                  "key": "submission[note]",
+                  "value": "Rapi"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Mengumpulkan\", () => pm.expect(pm.response.text()).to.include(\"Mengumpulkan\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Nilai di luar 0-100 ditolak (422)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/vnd.turbo-stream.html"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/submissions/{{submission_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "submissions",
+                "{{submission_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "submission[submitted]",
+                  "value": "1"
+                },
+                {
+                  "key": "submission[score]",
+                  "value": "150"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guru piket tidak boleh membuka laporan (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2026-10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2026-10"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SELESAI: kit menjadi terpakai, hasil dikirim ke guru",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/complete",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "complete"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /\\/duty\\/activations\\/\\d+$/', () => { pm.response.to.have.status(302); pm.expect(pm.response.headers.get('Location')).to.match(/\\/duty\\/activations\\/\\d+$/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Lembar terkunci setelah selesai",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Hasil sudah dikirim\", () => pm.expect(pm.response.text()).to.include(\"Hasil sudah dikirim\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mengubah lembar setelah selesai ditolak (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/vnd.turbo-stream.html"
+              },
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/{{activation_id}}/attendance_records/{{attendance_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "{{activation_id}}",
+                "attendance_records",
+                "{{attendance_id}}"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "attendance_record[status]",
+                  "value": "hadir"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aktivasi yang tidak ada / bukan milik piket ini: 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/duty/activations/999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "duty",
+                "activations",
+                "999999"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Keluar (Guru Piket)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /session\\/new/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Hasil kembali ke guru mapel",
+      "item": [
+        {
+          "name": "Ambil token CSRF (Guru Mapel (Andi))",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            },
+            "description": "Menyiapkan cookie sesi dan token CSRF (dibaca dari <meta name=csrf-token>)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Masuk ke Siaga Kelas\", () => pm.expect(pm.response.text()).to.include(\"Masuk ke Siaga Kelas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masuk sebagai Guru Mapel (Andi)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "andi@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login diterima: dialihkan keluar dari halaman masuk', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.not.include('/session/new'); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Beranda Guru Mapel (Andi)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Halaman peran terbuka (ada tombol Keluar)\", () => pm.expect(pm.response.text()).to.include(\"Keluar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Daftar hasil: hasil jam kosong kembali ke guru pemilik",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/results",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "results"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Hasil Kelas Kosong\", () => pm.expect(pm.response.text()).to.include(\"Hasil Kelas Kosong\"));",
+                  "pm.test(\"Memuat: result-card\", () => pm.expect(pm.response.text()).to.include(\"result-card\"));",
+                  "{ const m = pm.response.text().match(/href=\\\"\\/results\\/(\\d+)\\\"/); if (m) pm.collectionVariables.set('result_id', decodeURIComponent(m[1])); pm.test('Menemukan result_id', () => pm.expect(m, 'pola tidak ditemukan').to.be.ok); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail hasil per siswa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/results/{{result_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "results",
+                "{{result_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Rata-rata nilai\", () => pm.expect(pm.response.text()).to.include(\"Rata-rata nilai\"));",
+                  "pm.test(\"Memuat: Kehadiran\", () => pm.expect(pm.response.text()).to.include(\"Kehadiran\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Hasil yang bukan milik guru ini: 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/results/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "results",
+                "1"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard kit memuat hasil terbaru (live)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Hasil terbaru\", () => pm.expect(pm.response.text()).to.include(\"Hasil terbaru\"));",
+                  "pm.test(\"Memuat: turbo-cable-stream-source\", () => pm.expect(pm.response.text()).to.include(\"turbo-cable-stream-source\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Keluar (Guru Mapel)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /session\\/new/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Kepala sekolah: laporan bulanan",
+      "item": [
+        {
+          "name": "Ambil token CSRF (Kepala Sekolah)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session/new",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session",
+                "new"
+              ]
+            },
+            "description": "Menyiapkan cookie sesi dan token CSRF (dibaca dari <meta name=csrf-token>)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Masuk ke Siaga Kelas\", () => pm.expect(pm.response.text()).to.include(\"Masuk ke Siaga Kelas\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Masuk sebagai Kepala Sekolah",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email_address",
+                  "value": "bambang@siaga.test"
+                },
+                {
+                  "key": "password",
+                  "value": "{{demo_password}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login diterima: dialihkan keluar dari halaman masuk', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.not.include('/session/new'); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Beranda Kepala Sekolah",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Halaman peran terbuka (ada tombol Keluar)\", () => pm.expect(pm.response.text()).to.include(\"Keluar\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Laporan bulan berjalan (dialihkan dari /reports)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Laporan Bulanan\", () => pm.expect(pm.response.text()).to.include(\"Laporan Bulanan\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Laporan bulan lalu: angka, tren, penyebab",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2026-10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2026-10"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test(\"Memuat: Jam kosong\", () => pm.expect(pm.response.text()).to.include(\"Jam kosong\"));",
+                  "pm.test(\"Memuat: Tertangani kit\", () => pm.expect(pm.response.text()).to.include(\"Tertangani kit\"));",
+                  "pm.test(\"Memuat: Penyebab guru berhalangan\", () => pm.expect(pm.response.text()).to.include(\"Penyebab guru berhalangan\"));",
+                  "pm.test(\"Memuat: vbars\", () => pm.expect(pm.response.text()).to.include(\"vbars\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulan tidak valid: 404",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/2026-13",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "2026-13"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kepala sekolah hanya boleh laporan: Bank Kit 403",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kits",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kits"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kepala sekolah tidak boleh aktivasi (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/curriculum/absences",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "curriculum",
+                "absences"
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "teacher_id",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "{{absence_date}}"
+                },
+                {
+                  "key": "reason",
+                  "value": "sakit"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));",
+                  "for (let i = 0; i < 8; i++) { const d = new Date(now.getTime() + i * 86400000); if (![0, 6].includes(d.getDay())) { const p = n => String(n).padStart(2, '0'); pm.collectionVariables.set('absence_date', `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`); break; } }"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "Keluar (Kepala Sekolah)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-CSRF-Token",
+                "value": "{{csrf}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/session",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "session"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Dialihkan ke /session\\/new/', () => { pm.expect([302, 303]).to.include(pm.response.code); pm.expect(pm.response.headers.get('Location')).to.match(/session\\/new/); });"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        }
+      ]
+    }
+  ]
+}
