@@ -108,7 +108,7 @@ module Activations
       def label_date = I18n.l(@date, format: "%A, %d %B %Y")
 
       def broadcast(result)
-        Broadcaster.refresh(school: @teacher.school, invigilator_ids: result.created.map(&:invigilator_id))
+        Broadcaster.refresh(school: @teacher.school, invigilator_ids: result.created.map(&:invigilator_id), teacher_ids: [ @teacher.id ])
       end
 
       def failure(error)

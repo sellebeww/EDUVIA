@@ -31,9 +31,24 @@ class Activation < ApplicationRecord
   scope :for_school, ->(school) { joins(lesson: :school_class).where(school_classes: { school_id: school.id }) }
   scope :from_date, ->(date) { joins(:absence).where("absences.date >= ?", date) }
   scope :ordered_by_slot, -> { joins(:absence, lesson: :period).order("absences.date", "periods.number") }
+  scope :results_for, ->(teacher) { completed.joins(:absence).where(absences: { teacher_id: teacher.id }) }
+  # Hitungan lembar langsung di SQL (satu query, tanpa N+1) untuk daftar hasil.
+  scope :with_stats, -> {
+    select("activations.*",
+           "(SELECT COUNT(*) FROM attendance_records ar WHERE ar.activation_id = activations.id) AS students_count",
+           "(SELECT COUNT(*) FROM attendance_records ar WHERE ar.activation_id = activations.id AND ar.status = 'hadir') AS present_count",
+           "(SELECT COUNT(*) FROM submissions sb WHERE sb.activation_id = activations.id AND sb.submitted) AS submitted_count",
+           "(SELECT ROUND(AVG(sb.score)) FROM submissions sb WHERE sb.activation_id = activations.id AND sb.score IS NOT NULL) AS average_score")
+  }
   scope :with_details, -> { includes(:kit, :invigilator, absence: :teacher, lesson: %i[subject school_class period]) }
 
   def completed? = completed_at.present?
+
+  # Ringkasan lembar kehadiran dan pengumpulan (dua query ringan). Untuk daftar, pakai scope with_stats.
+  def sheet_summary
+    attendance = attendance_records.group(:status).count
+    { total: attendance.values.sum, present: attendance.fetch("hadir", 0), submitted: submissions.where(submitted: true).count }
+  end
 
   def label = "#{school_class.name} · #{subject.name}"
   def slot_label = "#{period.display_name} · #{period.time_range}"
