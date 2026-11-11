@@ -7,7 +7,7 @@ class Lesson < ApplicationRecord
   belongs_to :period
   has_many :activations, dependent: :restrict_with_error
 
-  delegate :school, to: :school_class
+  delegate :school, to: :school_class, allow_nil: true
 
   validates :day_of_week, presence: true, inclusion: { in: 1..7 }
   validates :period_id, uniqueness: { scope: %i[school_class_id day_of_week], message: "sudah dipakai kelas ini pada hari tersebut" }
