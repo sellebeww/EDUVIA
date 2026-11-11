@@ -1,0 +1,55 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Penugasan Piket" %>
+<div class="page-head">
+  <h1>Penugasan Guru Piket</h1>
+  <p class="page-head__sub">Guru piket yang bertugas pada suatu tanggal akan menerima kit saat ada kelas kosong.</p>
+</div>
+
+<div class="card card--form">
+  <h2 class="card__title">Tugaskan guru piket</h2>
+  <% if @duty_teachers.empty? %>
+    <p class="muted">Belum ada pengguna berperan Guru Piket.</p>
+  <% else %>
+    <%= form_with model: @assignment, url: curriculum_duty_assignments_path, class: "form form--inline" do |form| %>
+      <div class="field"><%= form.label :user_id, "Guru piket" %>
+        <%= form.collection_select :user_id, @duty_teachers, :id, :name, { include_blank: "Pilih guru" }, required: true %></div>
+      <div class="field"><%= form.label :date, "Tanggal" %>
+        <%= form.date_field :date, required: true, value: @assignment.date %></div>
+      <%= form.submit "Tugaskan", class: "btn btn--primary" %>
+    <% end %>
+  <% end %>
+</div>
+
+<nav class="toolbar" aria-label="Rentang tanggal">
+  <%= link_to "← Sebelumnya", curriculum_duty_assignments_path(from: @from - 14), class: "btn btn--secondary btn--sm" %>
+  <%= link_to "Hari ini", curriculum_duty_assignments_path, class: "btn btn--secondary btn--sm" %>
+  <%= link_to "Berikutnya →", curriculum_duty_assignments_path(from: @from + 14), class: "btn btn--secondary btn--sm" %>
+</nav>
+
+<div class="table-wrap"><table class="table">
+  <caption class="sr-only">Penugasan piket <%= l(@from, format: :long) %> sampai <%= l(@to, format: :long) %></caption>
+  <thead><tr><th scope="col">Tanggal</th><th scope="col">Guru piket bertugas</th></tr></thead>
+  <tbody>
+    <% (@from..@to).each do |date| %>
+      <% school_day = current_school.active_days.include?(date.cwday) %>
+      <tr class="<%= "muted-row" unless school_day %>">
+        <th scope="row"><%= l(date, format: "%A, %d %B %Y") %><%= tag.span "Hari ini", class: "badge" if date == Date.current %></th>
+        <td>
+          <% assigned = @by_date[date] || [] %>
+          <% if !school_day %>
+            <span class="muted">Bukan hari aktif sekolah</span>
+          <% elsif assigned.empty? %>
+            <span class="badge badge--warn">Belum ada guru piket</span>
+          <% else %>
+            <ul class="chips">
+              <% assigned.each do |assignment| %>
+                <li class="chip"><%= assignment.user.name %>
+                  <%= button_to "×", curriculum_duty_assignment_path(assignment), method: :delete, class: "chip__remove", aria: { label: "Hapus #{assignment.user.name}" }, form: { data: { turbo_confirm: "Hapus penugasan #{assignment.user.name}?" } } %></li>
+              <% end %>
+            </ul>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table></div>

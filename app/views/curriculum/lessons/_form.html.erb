@@ -1,0 +1,19 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%= form_with model: [ :curriculum, record ], class: "form" do |form| %>
+  <div class="field"><%= form.label :school_class_id, "Kelas" %>
+    <%= form.collection_select :school_class_id, current_school.school_classes.ordered, :id, :name, { include_blank: "Pilih kelas" }, required: true %></div>
+  <div class="field"><%= form.label :subject_id, "Mapel" %>
+    <%= form.collection_select :subject_id, current_school.subjects.ordered, :id, :name, { include_blank: "Pilih mapel" }, required: true %></div>
+  <div class="field"><%= form.label :teacher_id, "Guru" %>
+    <%= form.collection_select :teacher_id, current_school.users.guru_mapel.order(:name), :id, :name, { include_blank: "Pilih guru" }, required: true %></div>
+  <div class="field-row">
+    <div class="field"><%= form.label :day_of_week, "Hari" %>
+      <%= form.select :day_of_week, current_school.active_days.sort.map { |d| [ day_name(d), d ] }, { include_blank: "Pilih hari" }, required: true %></div>
+    <div class="field"><%= form.label :period_id, "Jam" %>
+      <%= form.select :period_id, current_school.periods.teaching.ordered.map { |p| [ "#{p.display_name} (#{p.time_range})", p.id ] }, { include_blank: "Pilih jam" }, required: true %></div>
+  </div>
+  <%= render "shared/form_actions", form: form, cancel_path: curriculum_lessons_path(school_class_id: record.school_class_id) %>
+  <% if record.persisted? %>
+    <p class="form-danger"><%= button_to "Hapus jadwal ini", curriculum_lesson_path(record), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus jadwal ini?" } } %></p>
+  <% end %>
+<% end %>

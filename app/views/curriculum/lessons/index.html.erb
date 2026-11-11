@@ -1,0 +1,52 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Jadwal Pelajaran" %>
+<div class="page-head page-head--row">
+  <div><h1>Jadwal Pelajaran</h1><p class="page-head__sub">Jadwal mingguan per kelas. Klik sel kosong untuk mengisi, atau klik pelajaran untuk mengubah.</p></div>
+</div>
+
+<% if @classes.empty? || @periods.empty? %>
+  <%= render "shared/empty_state", title: "Lengkapi data dulu", body: "Tambahkan minimal satu kelas dan satu jam pelajaran sebelum menyusun jadwal." %>
+  <p class="center toolbar toolbar--center">
+    <%= link_to "Tambah kelas", new_curriculum_school_class_path, class: "btn btn--secondary" %>
+    <%= link_to "Tambah jam pelajaran", new_curriculum_period_path, class: "btn btn--secondary" %>
+  </p>
+<% else %>
+  <nav class="tabs" aria-label="Pilih kelas">
+    <% @classes.each do |klass| %>
+      <%= link_to klass.name, curriculum_lessons_path(school_class_id: klass.id), class: "tabs__tab", aria: { current: (klass == @school_class ? "page" : nil) } %>
+    <% end %>
+  </nav>
+
+  <div class="table-wrap"><table class="table timetable">
+    <caption class="sr-only">Jadwal pelajaran kelas <%= @school_class.name %></caption>
+    <thead>
+      <tr>
+        <th scope="col">Jam</th>
+        <% @days.each do |day| %><th scope="col"><%= day_name(day) %></th><% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @periods.each do |period| %>
+        <tr class="<%= "timetable__recess" if period.recess? %>">
+          <th scope="row"><%= period.display_name %><br><small class="muted"><%= period.time_range %></small></th>
+          <% if period.recess? %>
+            <td colspan="<%= @days.size %>" class="center muted">Istirahat</td>
+          <% else %>
+            <% @days.each do |day| %>
+              <% lesson = @grid[[ day, period.id ]] %>
+              <td>
+                <% if lesson %>
+                  <%= link_to edit_curriculum_lesson_path(lesson), class: "slot" do %>
+                    <strong><%= lesson.subject.name %></strong><span><%= lesson.teacher.name %></span>
+                  <% end %>
+                <% else %>
+                  <%= link_to "+", new_curriculum_lesson_path(school_class_id: @school_class.id, period_id: period.id, day_of_week: day), class: "slot slot--empty", aria: { label: "Isi #{day_name(day)} #{period.display_name}" } %>
+                <% end %>
+              </td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table></div>
+<% end %>
