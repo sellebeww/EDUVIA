@@ -13,6 +13,9 @@ gem "importmap-rails"
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem "turbo-rails"
 gem "rails-i18n", "~> 8.0"
+
+# Realtime (Action Cable) lewat PostgreSQL, tanpa Redis.
+gem "solid_cable"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 # Use Redis adapter to run Action Cable in production

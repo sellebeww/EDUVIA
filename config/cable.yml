@@ -1,10 +1,22 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
+# Realtime lewat Solid Cable (pesan disimpan di PostgreSQL, database terpisah `cable`), tanpa Redis.
 development:
-  adapter: async
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: cable
+  polling_interval: 0.1.seconds
+  message_retention: 1.day
 
 test:
   adapter: test
 
 production:
-  adapter: redis
-  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
-  channel_prefix: siaga_kelas_production
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: cable
+  polling_interval: 0.1.seconds
+  message_retention: 1.day
+  writer_batch_size: 4
+  writer_batch_delay: 0.001.seconds

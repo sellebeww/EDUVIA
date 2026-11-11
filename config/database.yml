@@ -24,8 +24,13 @@ default: &default
 
 
 development:
-  <<: *default
-  database: siaga_kelas_development
+  primary:
+    <<: *default
+    database: siaga_kelas_development
+  cable:
+    <<: *default
+    database: siaga_kelas_development_cable
+    migrations_paths: db/cable_migrate
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -76,13 +81,12 @@ test:
 # URL environment variable explicitly:
 #
 #   production:
-#     url: <%= ENV["MY_APP_DATABASE_URL"] %>
-#
-# Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
-# for a full overview on how database connection configuration can be specified.
-#
-production:
-  <<: *default
-  database: siaga_kelas_production
-  username: siaga_kelas
-  password: <%= ENV["SIAGA_KELAS_DATABASE_PASSWORD"] %>
+  primary: &production_primary
+    <<: *default
+    database: siaga_kelas_production
+    username: siaga_kelas
+    password: <%= ENV["SIAGA_KELAS_DATABASE_PASSWORD"] %>
+  cable:
+    <<: *production_primary
+    database: siaga_kelas_production_cable
+    migrations_paths: db/cable_migrate
