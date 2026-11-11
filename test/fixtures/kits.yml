@@ -1,0 +1,32 @@
+mtk_7a_siap:
+  user: guru_mapel
+  subject: matematika
+  school_class: kelas_7a
+  title: Latihan Pecahan
+  phase: D
+  duration_minutes: 35
+  supervisor_instructions: Bagikan lembar soal, awasi, kumpulkan di akhir jam.
+  answer_key: 1) 3/4  2) 5/6
+  status: disiapkan
+
+mtk_7a_terpakai:
+  user: guru_mapel
+  subject: matematika
+  school_class: kelas_7a
+  title: Latihan Bilangan Bulat
+  phase: D
+  duration_minutes: 30
+  supervisor_instructions: Siswa mengerjakan mandiri.
+  status: terpakai
+  times_used: 1
+  last_used_at: <%= 3.days.ago.iso8601 %>
+
+ipa_7a_siap:
+  user: guru_mapel_dua
+  subject: ipa
+  school_class: kelas_7a
+  title: Ringkasan Sistem Pencernaan
+  phase: D
+  duration_minutes: 40
+  supervisor_instructions: Siswa membaca lalu merangkum.
+  status: disiapkan
