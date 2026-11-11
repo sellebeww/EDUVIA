@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
   before_action :set_user_by_token, only: %i[ edit update ]

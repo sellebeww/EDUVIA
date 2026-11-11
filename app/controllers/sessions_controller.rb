@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
 class SessionsController < ApplicationController
   # Batas percobaan masuk memakai store sendiri (bukan cache aplikasi) supaya selalu aktif di semua lingkungan.
   # shortcut: memori per proses; untuk banyak server pakai store bersama (mis. Solid Cache).

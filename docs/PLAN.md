@@ -1,7 +1,7 @@
 # Siaga Kelas — Rencana (Fase 0)
 
 > *"Jam kosong bukan lagi jam bebas."*
-> Status: **menunggu persetujuan**. Belum ada kode aplikasi.
+> **Catatan:** ini dokumen perencanaan awal (Fase 0). Implementasi akhir menyimpang di beberapa titik (mis. pratinjau memakai GET + Turbo Frame, tanpa halaman `activations` terpisah, ditambah toast, CSP, dan batas percobaan masuk). Semua penyimpangan beserta alasannya dicatat di [DECISIONS.md](DECISIONS.md); keadaan terbaru ada di [README.md](../README.md).
 > Milik Vassel Goleyu, © 2026. Seluruh hak dilindungi.
 
 Konvensi: kode, tabel, dan route memakai bahasa Inggris. Antarmuka, pesan, dan dokumen memakai bahasa Indonesia. Nilai enum yang menyangkut domain sekolah (`disiapkan`, `aktif`, `terpakai`, `guru_piket`, ...) memakai bahasa Indonesia sesuai brief.
