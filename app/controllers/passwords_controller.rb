@@ -1,7 +1,9 @@
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
   before_action :set_user_by_token, only: %i[ edit update ]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: "Terlalu banyak percobaan. Coba lagi beberapa menit lagi." }
+  rate_limit to: 5, within: 3.minutes, only: :create, store: SessionsController::RATE_LIMIT_STORE, name: "reset-per-email",
+             by: -> { "#{request.remote_ip}|#{params[:email_address].to_s.strip.downcase}" },
+             with: -> { redirect_to new_password_path, alert: "Terlalu banyak percobaan. Coba lagi beberapa menit lagi." }
 
   def new
   end
