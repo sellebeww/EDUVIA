@@ -23,3 +23,9 @@ Keputusan yang murah diubah diputuskan langsung dan dicatat di sini. Yang mahal 
 | D17 | 2026-11-11 | Rails yang terpasang 8.1.4 (generator `~> 8.0`), tambah gem `rails-i18n` untuk pesan bahasa Indonesia | Pesan validasi dan nama bulan/hari berbahasa Indonesia tanpa menulis ulang | Rendah |
 | D18 | 2026-11-11 | Tombol "Akun demo" di halaman masuk hanya muncul di `development`; kata sandi demo di `config.x.demo_password` | Juri bisa masuk sekali klik; tidak aktif di lingkungan lain | Rendah |
 | D19 | 2026-11-11 | Port host dapat diubah lewat `APP_PORT` (bawaan 3000); database tidak dibuka ke host | Menghindari bentrok port di komputer juri | Rendah |
+| D20 | 2026-11-11 | Kolom `periods.break` diberi nama `recess` | `break` adalah kata kunci Ruby, rawan membingungkan | Rendah |
+| D21 | 2026-11-11 | Batas tanggal Absence (hari ini s/d +7 hari) dijaga oleh `Activations::Create`, bukan validasi model | Model harus tetap bisa menyimpan data historis (seed laporan bulan lalu, impor) | Rendah |
+| D22 | 2026-11-11 | Kolom `time` tidak dikonversi zona waktu (`time_zone_aware_types = [:datetime]`) | Jam pelajaran adalah jam dinding lokal; konversi membuat 07.00 terbaca 14.00 (ditemukan oleh tes) | Rendah |
+| D23 | 2026-11-11 | Tanpa CRUD siswa di MVP; siswa diisi lewat seed | Brief hanya meminta CRUD jadwal, kelas, mapel, dan piket | Rendah |
+| D24 | 2026-11-11 | Seed memakai rumus jadwal tanpa bentrok guru; tiap kelas mendapat 4 jam per hari dan semua 5 mapel | Data demo realistis tetapi konsisten dengan validasi | Rendah |
+| D25 | 2026-11-11 | Menghapus hari aktif sekolah ditolak bila hari itu masih punya jadwal | Mencegah jadwal yatim di hari yang tidak aktif | Rendah |
