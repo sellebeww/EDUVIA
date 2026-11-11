@@ -21,7 +21,7 @@ MVP sedang dibangun bertahap. Rencana lengkap: [docs/PLAN.md](docs/PLAN.md). Kep
 | 0 | Perencanaan | selesai |
 | 1 | Fondasi: Rails 8, Docker, autentikasi, peran, layout, seed | selesai |
 | 2 | Domain inti: model, jadwal, kelas, mapel, piket, transisi status kit | selesai |
-| 3 | Bank kit | belum |
+| 3 | Bank kit: CRUD, templat, lampiran PDF, filter | selesai |
 | 4 | Aktivasi satu tombol + realtime | belum |
 | 5 | Kehadiran, pengumpulan, hasil, laporan | belum |
 | 6 | Poles dan serah terima | belum |
@@ -63,6 +63,7 @@ docker compose run --rm app bash -c "RAILS_ENV=test bin/rails db:prepare && bin/
 app/controllers/concerns/   authentication.rb (bawaan Rails 8), authorization.rb (peran)
 app/models/                 school, user (enum role), period, school_class, subject, student,
                             lesson, duty_assignment, kit (transisi status), absence, activation, ...
+app/controllers/kits_controller.rb  bank kit guru mapel (templat, PDF, filter)
 app/controllers/curriculum/ CRUD wakil kurikulum (jadwal, kelas, mapel, jam pelajaran, piket)
 app/assets/stylesheets/     tokens.css, base.css, layout.css, components.css (CSS murni)
 logo/                       logo EDUVIA (SVG beranimasi, PNG transparan, favicon) + build.mjs

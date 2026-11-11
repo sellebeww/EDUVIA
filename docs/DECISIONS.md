@@ -29,3 +29,9 @@ Keputusan yang murah diubah diputuskan langsung dan dicatat di sini. Yang mahal 
 | D23 | 2026-11-11 | Tanpa CRUD siswa di MVP; siswa diisi lewat seed | Brief hanya meminta CRUD jadwal, kelas, mapel, dan piket | Rendah |
 | D24 | 2026-11-11 | Seed memakai rumus jadwal tanpa bentrok guru; tiap kelas mendapat 4 jam per hari dan semua 5 mapel | Data demo realistis tetapi konsisten dengan validasi | Rendah |
 | D25 | 2026-11-11 | Menghapus hari aktif sekolah ditolak bila hari itu masih punya jadwal | Mencegah jadwal yatim di hari yang tidak aktif | Rendah |
+| D26 | 2026-11-11 | Formulir kit memilih "Kelas dan mapel" dari satu daftar berisi pasangan yang benar-benar diajar guru (diambil dari jadwal) | Mengurangi isian, mustahil memilih kombinasi tak valid, mempercepat target < 3 menit | Rendah |
+| D27 | 2026-11-11 | Templat kit diisi dari server lewat parameter URL (`?template=`), tanpa Stimulus/JS | Lebih ringan, berfungsi tanpa JavaScript, mudah dites | Rendah |
+| D28 | 2026-11-11 | Lampiran PDF dicek tipe, ukuran (≤ 5 MB), dan magic byte `%PDF-`; unduhan lewat aksi `kits#worksheet` (bukan URL Active Storage publik) | Content-type bisa dipalsukan (Marcel tidak mendeteksi teks biasa); hak akses harus dicek di setiap unduhan | Rendah |
+| D29 | 2026-11-11 | Kit berstatus `aktif` tidak bisa diubah atau dihapus; kit yang pernah punya aktivasi tidak bisa dihapus | Kit yang sedang dipakai di kelas tidak boleh berubah di tengah jalan; riwayat laporan terjaga | Rendah |
+| D30 | 2026-11-11 | Halaman bank kit menyarankan kelas yang belum punya kit dengan tautan siap isi | Mendorong kesiapsiagaan, dan membuat kit pertama cukup 3 langkah | Rendah |
+| D31 | 2026-11-11 | Tanpa paginasi di bank kit | Jumlah kit per guru kecil (puluhan); dicatat di Known limitations | Rendah |
