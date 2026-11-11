@@ -46,3 +46,39 @@
     </ol>
   </section>
 <% end %>
+
+<section class="card sheets" aria-labelledby="sheets-title">
+  <div class="sheets__head">
+    <h2 id="sheets-title" class="card__title">Lembar kehadiran dan pengumpulan</h2>
+    <%= render "duty/activations/summary", summary: @summary %>
+  </div>
+
+  <% if @attendance.empty? %>
+    <p class="muted">Kelas ini belum punya data siswa, jadi lembar tidak bisa diisi.</p>
+  <% else %>
+    <% if @activation.completed? %>
+      <p class="muted">Aktivasi sudah diselesaikan, jadi lembar hanya bisa dibaca.</p>
+    <% else %>
+      <p class="muted">Perubahan tersimpan otomatis per siswa.</p>
+    <% end %>
+    <div class="sheets__cols">
+      <div>
+        <h3 class="sheets__title">Kehadiran</h3>
+        <ul class="sheet-list"><% @attendance.each do |record| %><li><%= render "duty/sheets/attendance_row", activation: @activation, record: record %></li><% end %></ul>
+      </div>
+      <div>
+        <h3 class="sheets__title">Pengumpulan</h3>
+        <ul class="sheet-list"><% @submissions.each do |record| %><li><%= render "duty/sheets/submission_row", activation: @activation, record: record %></li><% end %></ul>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<% if @activation.completed? %>
+  <div class="alert alert--ok" role="status">Selesai pada <%= l(@activation.completed_at, format: :long) %>. Hasil sudah dikirim ke <%= @activation.absence.teacher.name %>.</div>
+<% else %>
+  <div class="finish">
+    <%= button_to "Selesai dan kirim hasil ke guru", complete_duty_activation_path(@activation), method: :patch, class: "btn btn--primary btn--lg",
+          form: { data: { turbo_confirm: "Selesaikan jam ini? Setelah itu lembar tidak bisa diubah dan kit ditandai terpakai." } }, data: { turbo_submits_with: "Menyimpan..." } %>
+  </div>
+<% end %>

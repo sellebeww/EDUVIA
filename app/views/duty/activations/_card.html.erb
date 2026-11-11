@@ -1,6 +1,6 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <%# locals: (activation:) %>
-<article class="duty-card<%= " duty-card--warn" if activation.warning_codes.any? %><%= " is-new" if activation.activated_at > 20.seconds.ago %>" id="<%= dom_id(activation) %>">
+<article class="duty-card<%= " duty-card--warn" if activation.warning_codes.any? %><%= " is-new" if !activation.completed? && activation.activated_at > 20.seconds.ago %><%= " duty-card--done" if activation.completed? %>" id="<%= dom_id(activation) %>">
   <header class="duty-card__head">
     <span class="duty-card__slot"><%= activation.slot_label %></span>
     <%= activation_status_badge(activation) %>
@@ -16,5 +16,5 @@
   <% if activation.warning_codes.any? %>
     <ul class="note-list"><% activation.warnings.each do |w| %><li><%= w %></li><% end %></ul>
   <% end %>
-  <footer><%= link_to "Buka kit", duty_activation_path(activation), class: "btn btn--primary btn--sm" %></footer>
+  <footer><%= link_to (activation.completed? ? "Lihat hasil" : "Buka kit"), duty_activation_path(activation), class: "btn #{activation.completed? ? "btn--secondary" : "btn--primary"} btn--sm" %></footer>
 </article>

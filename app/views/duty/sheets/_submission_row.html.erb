@@ -1,0 +1,21 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (activation:, record:) %>
+<%= turbo_frame_tag dom_id(record), class: "sheet-row" do %>
+  <% name = "#{record.student.roll_number}. #{record.student.name}" %>
+  <% if activation.completed? %>
+    <span class="sheet-row__name"><%= name %></span>
+    <span class="sheet-row__done"><%= record.submitted? ? "Sudah mengumpulkan" : "Belum" %><%= " · nilai #{record.score}" if record.score %></span>
+  <% else %>
+    <%= form_with url: duty_activation_submission_path(activation, record), method: :patch, class: "sheet-form", data: { controller: "autosave" } do %>
+      <span class="sheet-row__name"><%= name %></span>
+      <%= hidden_field_tag "submission[submitted]", "0", id: nil %>
+      <label class="check"><%= check_box_tag "submission[submitted]", "1", record.submitted?, id: "#{dom_id(record)}_submitted", data: { action: "autosave#submit" } %>Mengumpulkan</label>
+      <input type="number" name="submission[score]" value="<%= record.score %>" min="0" max="100" step="1" inputmode="numeric" class="sheet-score"
+             placeholder="Nilai" aria-label="Nilai <%= name %> (0 sampai 100)" data-action="input->autosave#debounce change->autosave#submit">
+      <input type="text" name="submission[note]" value="<%= record.note %>" maxlength="200" class="sheet-note"
+             placeholder="Catatan" aria-label="Catatan <%= name %>" data-action="input->autosave#debounce change->autosave#submit">
+      <noscript><button type="submit" class="btn btn--secondary btn--sm">Simpan</button></noscript>
+      <% record.errors.full_messages.each do |m| %><small class="sheet-row__error" role="alert"><%= m %></small><% end %>
+    <% end %>
+  <% end %>
+<% end %>
