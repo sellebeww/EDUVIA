@@ -84,6 +84,7 @@ TOPICS = {
   "BIG" => [ "Reading Comprehension: My Daily Routine", "Read the text and answer the 8 questions in your notebook." ],
   "IPS" => [ "Peta Konsep: Interaksi Sosial", "Buat peta konsep interaksi sosial dengan minimal 3 contoh dari lingkungan sekitar." ]
 }.freeze
+SAMPLE_PDF = File.binread(Rails.root.join("db/seed_files/lembar-kerja-contoh.pdf")).freeze
 SUPERVISOR = "Bagikan lembar kerja, pastikan siswa duduk tenang dan mengerjakan sendiri selama %<d>d menit. " \
              "Anda tidak perlu menguasai materi: cukup awasi dan kumpulkan hasil di akhir jam. Isi lembar kehadiran dan pengumpulan di aplikasi."
 
@@ -103,6 +104,9 @@ SUPERVISOR = "Bagikan lembar kerja, pastikan siswa duduk tenang dan mengerjakan 
     k.status = status
     k.times_used = status == :terpakai ? 1 : 0
     k.last_used_at = 10.days.ago if status == :terpakai
+  end.tap do |kit|
+    next if kit.worksheet.attached?
+    kit.worksheet.attach(io: StringIO.new(SAMPLE_PDF), filename: "lembar-kerja-#{code.downcase}-#{class_name.parameterize}.pdf", content_type: "application/pdf")
   end
 end
 
