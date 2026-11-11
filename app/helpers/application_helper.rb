@@ -23,4 +23,19 @@ module ApplicationHelper
     return if record.errors.empty?
     render "shared/errors", record: record
   end
+
+  # "Hari ini · Rabu, 11 November 2026", "Besok · ...", atau tanggal biasa.
+  def date_heading(date)
+    full = l(date, format: "%A, %d %B %Y")
+    case date
+    when Date.current then "Hari ini · #{full}"
+    when Date.current + 1 then "Besok · #{full}"
+    else full
+    end
+  end
+
+  def activation_status_badge(activation)
+    label, css = { selesai: [ "Selesai", "terpakai" ], aktif: [ "Aktif", "aktif" ], menunggu_piket: [ "Menunggu piket", "warn" ] }.fetch(activation.status)
+    tag.span label, class: "badge badge--status-#{css}"
+  end
 end

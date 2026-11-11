@@ -21,11 +21,15 @@ Rails.application.routes.draw do
     resources :subjects, except: :show
     resources :lessons, except: :show
     resources :duty_assignments, only: %i[index create destroy]
+    resources :absences, only: %i[new create]
   end
 
   # guru_piket
   namespace :duty do
     root "activations#index"
+    resources :activations, only: :show do
+      get :worksheet, on: :member
+    end
   end
 
   # kepala_sekolah (+ wakil_kurikulum)

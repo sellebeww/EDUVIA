@@ -1,0 +1,41 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% if @error %>
+  <div class="alert alert--danger" role="alert"><%= @error %></div>
+<% elsif @plan&.empty? %>
+  <%= render "shared/empty_state", title: "Tidak ada jam mengajar", body: "#{@teacher.name} tidak mengajar pada #{l(@date, format: "%A, %d %B %Y")}, jadi tidak ada kelas yang perlu diaktifkan." %>
+<% elsif @plan %>
+  <% items = @plan.items %>
+  <% fresh = items.reject(&:existing?) %>
+  <section class="card" aria-labelledby="preview-title">
+    <h2 id="preview-title" class="card__title">Dampak: <%= @teacher.name %> · <%= l(@date, format: "%A, %d %B %Y") %></h2>
+    <div class="table-wrap table-wrap--flat"><table class="table">
+      <caption class="sr-only">Jam terdampak dan kit yang akan dikirim</caption>
+      <thead><tr><th scope="col">Jam</th><th scope="col">Kelas</th><th scope="col">Kit</th><th scope="col">Guru piket</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        <% items.each do |item| %>
+          <tr>
+            <th scope="row"><%= item.lesson.period.display_name %><br><small class="muted"><%= item.lesson.period.time_range %></small></th>
+            <td><strong><%= item.lesson.school_class.name %></strong><br><small class="muted"><%= item.lesson.subject.name %></small></td>
+            <td>
+              <% if item.kit %><%= item.kit.title %><% if item.reused %> <span class="badge">Pakai ulang</span><% end %>
+              <% else %><span class="badge badge--warn">Tidak ada kit: mode cadangan</span><% end %>
+            </td>
+            <td><%= item.invigilator ? item.invigilator.name : tag.span("Belum ditugaskan", class: "badge badge--warn") %></td>
+            <td><%= item.existing? ? tag.span("Sudah diaktifkan", class: "badge badge--status-aktif") : tag.span("Akan diaktifkan", class: "badge") %></td>
+          </tr>
+          <% if !item.existing? && item.warning_codes.any? %>
+            <tr class="row-note"><td></td><td colspan="4"><ul class="note-list"><% item.warning_codes.each { |c| %><li><%= Activation::WARNINGS[c] %></li><% } %></ul></td></tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table></div>
+
+    <% if fresh.any? %>
+      <%= button_to "Aktifkan #{fresh.size} kelas sekarang", curriculum_absences_path, method: :post, class: "btn btn--primary btn--lg",
+            params: { teacher_id: @teacher.id, date: @date.iso8601, reason: @reason, note: @note },
+            form: { data: { turbo_frame: "_top" } }, data: { turbo_submits_with: "Mengaktifkan..." } %>
+    <% else %>
+      <p class="muted">Semua kelas untuk guru dan tanggal ini sudah diaktifkan.</p>
+    <% end %>
+  </section>
+<% end %>

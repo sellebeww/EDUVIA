@@ -1,7 +1,10 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% content_for :title, "Jam Kosong Hari Ini" %>
-<div class="page-head">
-  <h1>Jam Kosong Hari Ini</h1>
-  <p class="page-head__sub">Pantau kelas kosong dan aktifkan kit siaga dengan satu tombol.</p>
+<%= turbo_stream_from "curriculum_#{current_school.id}" %>
+
+<div class="page-head page-head--row">
+  <div><h1>Jam Kosong Hari Ini</h1><p class="page-head__sub">Pantau kelas kosong dan aktifkan kit siaga dengan satu tombol. Daftar diperbarui otomatis.</p></div>
+  <%= link_to "Tandai guru berhalangan", new_curriculum_absence_path, class: "btn btn--primary" %>
 </div>
-<%= render "shared/empty_state", title: "Belum ada jam kosong", body: "Guru berhalangan yang Anda tandai akan tampil di sini." %>
+
+<%= render "curriculum/dashboards/activations", activations: @activations %>
