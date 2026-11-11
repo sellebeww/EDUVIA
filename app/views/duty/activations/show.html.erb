@@ -1,0 +1,48 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, @activation.label %>
+<div class="page-head page-head--row">
+  <div>
+    <p class="crumb"><%= link_to "← Kit Hari Ini", duty_root_path %></p>
+    <h1><%= @activation.label %></h1>
+    <p class="page-head__sub"><%= date_heading(@activation.date) %> · <%= @activation.slot_label %> · Menggantikan <%= @activation.absence.teacher.name %> (<%= @activation.absence.reason_label %>)</p>
+  </div>
+  <%= activation_status_badge(@activation) %>
+</div>
+
+<% if @activation.warning_codes.any? %>
+  <div class="alert alert--warn" role="status"><ul class="alert__list"><% @activation.warnings.each do |w| %><li><%= w %></li><% end %></ul></div>
+<% end %>
+
+<% if @activation.kit %>
+  <% kit = @activation.kit %>
+  <div class="kit-detail">
+    <section class="card">
+      <h2 class="card__title">Petunjuk untuk pengawas</h2>
+      <p><strong><%= kit.title %></strong> · <%= kit.duration_minutes %> menit<% if @activation.reused %> <span class="badge">Pakai ulang</span><% end %></p>
+      <p class="prewrap"><%= kit.supervisor_instructions %></p>
+    </section>
+    <section class="card">
+      <h2 class="card__title">Lembar soal</h2>
+      <% if kit.worksheet.attached? %>
+        <p><%= link_to "Unduh #{kit.worksheet.filename}", worksheet_duty_activation_path(@activation), class: "btn btn--secondary" %></p>
+      <% else %>
+        <p class="muted">Tidak ada lampiran PDF. Ikuti petunjuk di samping.</p>
+      <% end %>
+      <details class="answer-key">
+        <summary>Kunci jawaban (untuk memeriksa hasil)</summary>
+        <p class="prewrap"><%= kit.answer_key.presence || "Belum diisi oleh guru." %></p>
+      </details>
+    </section>
+  </div>
+<% else %>
+  <section class="card">
+    <h2 class="card__title">Mode cadangan: tugas mandiri umum</h2>
+    <p class="muted">Guru belum menyiapkan kit untuk kelas ini. Gunakan langkah berikut supaya jam ini tetap terpakai belajar.</p>
+    <ol class="steps">
+      <li>Pastikan semua siswa duduk tenang. Catat kehadiran di aplikasi.</li>
+      <li>Minta siswa membuka buku catatan mapel <strong><%= @activation.subject.name %></strong> dan membaca materi terakhir.</li>
+      <li>Siswa merangkum materi dalam 5 kalimat dan menulis 3 pertanyaan tentang materi itu.</li>
+      <li>Kumpulkan hasil di akhir jam dan serahkan ke guru mapel.</li>
+    </ol>
+  </section>
+<% end %>

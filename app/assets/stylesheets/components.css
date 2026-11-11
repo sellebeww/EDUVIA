@@ -143,6 +143,7 @@
 
 .badge--status-disiapkan { background: var(--blue-100); color: var(--blue-700); }
 .badge--status-aktif { background: var(--ok-bg); color: var(--ok); }
+.badge--status-warn { background: var(--warn-bg); color: var(--warn); }
 .badge--status-terpakai { background: #eceff6; color: #4b5578; }
 
 .chips--links { margin-top: var(--space-2); }
@@ -162,3 +163,29 @@
 .page-head--row .btn { align-self: flex-end; }
 .field-row { align-items: start; }
 .field { align-content: start; }
+
+/* --- Aktivasi (Fase 4) --- */
+.btn--lg { min-height: 52px; padding: 14px 26px; font-size: 1.05rem; margin-top: var(--space-4); }
+.alert--warn { background: var(--warn-bg); color: var(--warn); border-color: #f1d49b; }
+.table-wrap--flat { box-shadow: none; }
+.day-group { margin-bottom: var(--space-6); }
+.day-group__title { font-size: 1rem; color: var(--ink-2); margin-bottom: var(--space-3); }
+.row-note td { padding-top: 0; font-size: .85rem; color: var(--warn); }
+.note-list { margin: var(--space-1) 0 0; padding-left: 1.1em; font-size: .85rem; color: var(--warn); }
+.steps { padding-left: 1.3em; display: grid; gap: var(--space-2); }
+.answer-key { margin-top: var(--space-4); }
+.answer-key summary { cursor: pointer; font-weight: 600; }
+
+.duty-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+.duty-card { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--blue-600); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+.duty-card--warn { border-left-color: #d98a00; }
+.duty-card.is-new { animation: card-in .6s cubic-bezier(.22, 1, .36, 1), card-glow 2.4s ease-out; }
+.duty-card__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.duty-card__slot { font-weight: 700; color: var(--blue-700); font-size: .9rem; }
+.duty-card__title { font-size: 1.15rem; }
+.duty-card__title a { color: var(--ink); text-decoration: none; }
+.duty-card__meta { color: var(--ink-2); font-size: .9rem; }
+.duty-card__kit { font-size: .95rem; }
+.duty-card footer { margin-top: var(--space-1); }
+@keyframes card-in { from { opacity: 0; transform: translateY(-12px) scale(.98); } }
+@keyframes card-glow { from { box-shadow: 0 0 0 4px rgb(61 107 255 / 35%), var(--shadow); } }

@@ -1,0 +1,14 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (activations:) %>
+<div id="duty-activations">
+  <% if activations.empty? %>
+    <%= render "shared/empty_state", title: "Belum ada kit aktif", body: "Saat ada kelas kosong, kartu kit muncul otomatis di sini." %>
+  <% else %>
+    <% activations.group_by(&:date).each do |date, rows| %>
+      <section class="day-group" aria-label="<%= date_heading(date) %>">
+        <h2 class="day-group__title"><%= date_heading(date) %></h2>
+        <div class="duty-grid"><%= render partial: "duty/activations/card", collection: rows, as: :activation %></div>
+      </section>
+    <% end %>
+  <% end %>
+</div>

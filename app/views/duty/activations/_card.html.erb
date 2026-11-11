@@ -1,0 +1,20 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (activation:) %>
+<article class="duty-card<%= " duty-card--warn" if activation.warning_codes.any? %><%= " is-new" if activation.activated_at > 20.seconds.ago %>" id="<%= dom_id(activation) %>">
+  <header class="duty-card__head">
+    <span class="duty-card__slot"><%= activation.slot_label %></span>
+    <%= activation_status_badge(activation) %>
+  </header>
+  <h3 class="duty-card__title"><%= link_to activation.label, duty_activation_path(activation) %></h3>
+  <p class="duty-card__meta">Menggantikan <%= activation.absence.teacher.name %> (<%= activation.absence.reason_label %>)</p>
+  <% if activation.kit %>
+    <p class="duty-card__kit"><strong><%= activation.kit.title %></strong> · <%= activation.kit.duration_minutes %> menit
+      <% if activation.reused %><span class="badge">Pakai ulang</span><% end %></p>
+  <% else %>
+    <p class="duty-card__kit"><span class="badge badge--warn">Mode cadangan</span> Tidak ada kit untuk jam ini.</p>
+  <% end %>
+  <% if activation.warning_codes.any? %>
+    <ul class="note-list"><% activation.warnings.each do |w| %><li><%= w %></li><% end %></ul>
+  <% end %>
+  <footer><%= link_to "Buka kit", duty_activation_path(activation), class: "btn btn--primary btn--sm" %></footer>
+</article>

@@ -1,7 +1,10 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
 <% content_for :title, "Kit Hari Ini" %>
+<%= turbo_stream_from "duty_#{current_user.id}" %>
+
 <div class="page-head">
   <h1>Kit Hari Ini</h1>
-  <p class="page-head__sub">Kit siaga yang dikirim ke Anda tampil langsung di sini.</p>
+  <p class="page-head__sub">Kit siaga yang dikirim ke Anda tampil langsung di sini, tanpa perlu memuat ulang.</p>
 </div>
-<%= render "shared/empty_state", title: "Belum ada kit aktif", body: "Saat ada kelas kosong, kartu kit muncul otomatis tanpa perlu memuat ulang." %>
+
+<%= render "duty/activations/list", activations: @activations %>
