@@ -13,6 +13,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     "/curriculum/subjects" => %i[wakil_kurikulum],
     "/curriculum/lessons" => %i[wakil_kurikulum],
     "/curriculum/duty_assignments" => %i[wakil_kurikulum],
+    "/curriculum/absences/new" => %i[wakil_kurikulum],
     "/reports" => %i[wakil_kurikulum kepala_sekolah]
   }.freeze
 
