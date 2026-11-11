@@ -1,0 +1,28 @@
+# Dependencies, logs, temp
+/.bundle
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+/tmp/pids/*
+/vendor/bundle
+/node_modules
+
+# Uploaded files (Active Storage, disk service)
+/storage/*
+!/storage/.keep
+
+# Compiled assets
+/public/assets
+
+# Secrets: never commit
+/config/*.key
+/config/credentials/*.key
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea
+.vscode
