@@ -55,6 +55,7 @@ id:
         supervisor_instructions: Petunjuk untuk pengawas
         answer_key: Kunci jawaban
         phase: Fase
+        worksheet: Lampiran PDF
       absence:
         teacher: Guru
         date: Tanggal

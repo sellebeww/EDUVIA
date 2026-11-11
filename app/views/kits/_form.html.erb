@@ -1,0 +1,49 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (kit:) %>
+<% selected = kit.subject_id && kit.school_class_id ? "#{kit.subject_id}:#{kit.school_class_id}" : params[:assignment] %>
+
+<% if kit.new_record? %>
+  <div class="templates" role="group" aria-label="Templat kit">
+    <span class="templates__label">Mulai dari templat:</span>
+    <% KitTemplate.all.each do |t| %>
+      <%= link_to new_kit_path(template: t.key, assignment: selected), class: "template", aria: { current: (params[:template] == t.key ? "true" : nil) } do %>
+        <strong><%= t.name %></strong><span><%= t.summary %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>
+
+<%= form_with model: kit, class: "form" do |form| %>
+  <div class="field">
+    <%= label_tag "kit_assignment", "Kelas dan mapel" %>
+    <% if @assignments.empty? %>
+      <p class="muted">Anda belum punya jadwal mengajar, jadi belum bisa membuat kit. Hubungi wakil kurikulum.</p>
+    <% else %>
+      <%= select_tag "kit[assignment]", options_for_select(@assignments.map { |a| [ a.label, a.value ] }, selected), include_blank: "Pilih kelas dan mapel", required: true, id: "kit_assignment" %>
+      <small class="field__hint">Fase kurikulum ditentukan otomatis dari kelas<%= " (Fase #{kit.phase})" if kit.phase %>.</small>
+    <% end %>
+  </div>
+
+  <div class="field-row">
+    <div class="field"><%= form.label :title %><%= form.text_field :title, required: true, maxlength: 120 %></div>
+    <div class="field"><%= form.label :duration_minutes %><%= form.number_field :duration_minutes, required: true, min: 30, max: 40, step: 1 %>
+      <small class="field__hint">30 sampai 40 menit.</small></div>
+  </div>
+
+  <div class="field"><%= form.label :supervisor_instructions %>
+    <%= form.text_area :supervisor_instructions, required: true, rows: 7 %>
+    <small class="field__hint">Tulis seolah pengawas tidak menguasai mapel Anda.</small></div>
+
+  <div class="field"><%= form.label :answer_key %>
+    <%= form.text_area :answer_key, rows: 5 %></div>
+
+  <div class="field"><%= form.label :worksheet, "Lampiran PDF (lembar soal)" %>
+    <%= form.file_field :worksheet, accept: "application/pdf" %>
+    <small class="field__hint">Opsional. Hanya PDF, maksimal 5 MB.</small>
+    <% if kit.persisted? && kit.worksheet.attached? %>
+      <label class="check"><%= check_box_tag "kit[remove_worksheet]", "1", false, id: "kit_remove_worksheet" %>Hapus lampiran saat ini (<%= kit.worksheet.filename %>)</label>
+    <% end %>
+  </div>
+
+  <%= render "shared/form_actions", form: form, cancel_path: (kit.persisted? ? kit_path(kit) : kits_path) %>
+<% end %>

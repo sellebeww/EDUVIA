@@ -1,7 +1,47 @@
 <%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
-<% content_for :title, "Bank Kit Saya" %>
-<div class="page-head">
-  <h1>Bank Kit Saya</h1>
-  <p class="page-head__sub">Kit siaga tugas mandiri untuk kelas yang Anda ajar.</p>
+<% content_for :title, "Bank Kit" %>
+<div class="page-head page-head--row">
+  <div><h1>Bank Kit Saya</h1><p class="page-head__sub">Kit siaga tugas mandiri untuk kelas yang Anda ajar. Siapkan sebelum dibutuhkan.</p></div>
+  <%= link_to "Kit baru", new_kit_path, class: "btn btn--primary" %>
 </div>
-<%= render "shared/empty_state", title: "Belum ada kit", body: "Kit yang Anda siapkan akan tampil di sini." %>
+
+<div class="grid grid--3">
+  <div class="card stat"><span class="card__stat"><%= @counts.fetch("disiapkan", 0) %></span><span class="card__label">Siap dipakai</span></div>
+  <div class="card stat"><span class="card__stat"><%= @counts.fetch("aktif", 0) %></span><span class="card__label">Sedang dipakai</span></div>
+  <div class="card stat"><span class="card__stat"><%= @counts.fetch("terpakai", 0) %></span><span class="card__label">Sudah terpakai</span></div>
+</div>
+
+<% if @missing.any? %>
+  <section class="card notice" aria-labelledby="missing-title">
+    <h2 id="missing-title" class="card__title">Belum punya kit (<%= @missing.size %> kelas)</h2>
+    <p class="muted">Kelas ini belum punya kit. Jika Anda berhalangan, kelasnya hanya bisa memakai mode cadangan. Klik untuk menyiapkan.</p>
+    <ul class="chips chips--links">
+      <% @missing.each do |a| %>
+        <li><%= link_to a.label, new_kit_path(assignment: a.value, template: "latihan_soal"), class: "chip chip--link" %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<%= form_with url: kits_path, method: :get, class: "filters", data: { turbo_frame: "_top" } do |form| %>
+  <div class="field"><%= form.label :subject_id, "Mapel" %>
+    <%= form.select :subject_id, @subjects.map { |a| [ a.subject_name, a.subject_id ] }, { include_blank: "Semua mapel", selected: params[:subject_id] } %></div>
+  <div class="field"><%= form.label :school_class_id, "Kelas" %>
+    <%= form.select :school_class_id, @classes.map { |a| [ a.class_name, a.school_class_id ] }, { include_blank: "Semua kelas", selected: params[:school_class_id] } %></div>
+  <div class="field"><%= form.label :phase, "Fase" %>
+    <%= form.select :phase, @phases.map { |p| [ "Fase #{p}", p ] }, { include_blank: "Semua fase", selected: params[:phase] } %></div>
+  <div class="filters__actions">
+    <%= form.submit "Terapkan", class: "btn btn--secondary" %>
+    <%= link_to "Atur ulang", kits_path, class: "btn btn--secondary" if @filtered %>
+  </div>
+<% end %>
+
+<% if @kits.empty? %>
+  <% if @filtered %>
+    <%= render "shared/empty_state", title: "Tidak ada kit yang cocok", body: "Ubah atau atur ulang filter untuk melihat kit lainnya." %>
+  <% else %>
+    <%= render "shared/empty_state", title: "Belum ada kit", body: "Siapkan kit pertama Anda. Dengan templat, cukup beberapa menit." %>
+  <% end %>
+<% else %>
+  <div class="kit-grid"><%= render partial: "kit", collection: @kits, as: :kit %></div>
+<% end %>

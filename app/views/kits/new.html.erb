@@ -1,0 +1,11 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Kit Baru" %>
+<div class="page-head">
+  <p class="crumb"><%= link_to "← Bank Kit", kits_path %></p>
+  <h1>Kit Baru</h1>
+  <p class="page-head__sub">Pilih templat, pilih kelas, sesuaikan, lalu simpan.</p>
+</div>
+<div class="card card--form">
+  <%= error_messages_for @kit %>
+  <%= render "form", kit: @kit %>
+</div>

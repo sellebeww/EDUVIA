@@ -1,0 +1,50 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, @kit.title %>
+<div class="page-head page-head--row">
+  <div>
+    <p class="crumb"><%= link_to "← Bank Kit", kits_path %></p>
+    <h1><%= @kit.title %></h1>
+    <p class="page-head__sub"><%= @kit.school_class.name %> · <%= @kit.subject.name %> · Fase <%= @kit.phase %> · <%= @kit.duration_minutes %> menit</p>
+  </div>
+  <div class="toolbar">
+    <% if @kit.editable? %>
+      <%= link_to "Ubah", edit_kit_path(@kit), class: "btn btn--primary" %>
+    <% end %>
+    <%= button_to "Duplikat", duplicate_kit_path(@kit), method: :post, class: "btn btn--secondary" %>
+  </div>
+</div>
+
+<% unless @kit.editable? %>
+  <div class="alert alert--ok" role="status">Kit ini sedang dipakai di kelas, jadi tidak bisa diubah atau dihapus sampai selesai.</div>
+<% end %>
+
+<div class="kit-detail">
+  <section class="card">
+    <h2 class="card__title">Petunjuk untuk pengawas</h2>
+    <p class="prewrap"><%= @kit.supervisor_instructions %></p>
+  </section>
+  <section class="card">
+    <h2 class="card__title">Kunci jawaban</h2>
+    <% if @kit.answer_key.present? %><p class="prewrap"><%= @kit.answer_key %></p><% else %><p class="muted">Belum diisi.</p><% end %>
+  </section>
+  <section class="card">
+    <h2 class="card__title">Lampiran</h2>
+    <% if @kit.worksheet.attached? %>
+      <p><%= link_to "Unduh #{@kit.worksheet.filename}", worksheet_kit_path(@kit), class: "btn btn--secondary" %>
+        <small class="muted"><%= number_to_human_size(@kit.worksheet.byte_size) %></small></p>
+    <% else %>
+      <p class="muted">Tidak ada lampiran PDF.</p>
+    <% end %>
+  </section>
+  <section class="card">
+    <h2 class="card__title">Status</h2>
+    <p><span class="badge badge--status-<%= @kit.status %>"><%= @kit.status_label %></span></p>
+    <p class="muted">Dipakai <%= @kit.times_used %> kali<%= ", terakhir #{l(@kit.last_used_at, format: :long)}" if @kit.last_used_at %>.</p>
+  </section>
+</div>
+
+<% if @kit.editable? %>
+  <div class="form-danger">
+    <%= button_to "Hapus kit", kit_path(@kit), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus kit \"#{@kit.title}\"?" } } %>
+  </div>
+<% end %>

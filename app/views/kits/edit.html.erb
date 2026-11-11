@@ -1,0 +1,10 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Ubah Kit" %>
+<div class="page-head">
+  <p class="crumb"><%= link_to "← #{@kit.title}", kit_path(@kit) %></p>
+  <h1>Ubah Kit</h1>
+</div>
+<div class="card card--form">
+  <%= error_messages_for @kit %>
+  <%= render "form", kit: @kit %>
+</div>

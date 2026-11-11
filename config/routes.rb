@@ -5,7 +5,12 @@ Rails.application.routes.draw do
   root "dashboards#show"
 
   # guru_mapel
-  resources :kits, only: :index
+  resources :kits do
+    member do
+      post :duplicate
+      get :worksheet
+    end
+  end
 
   # wakil_kurikulum
   namespace :curriculum do

@@ -116,3 +116,49 @@
 @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
 .field input:not([type="checkbox"]):not([type="radio"]), .field select { height: 44px; }
 .table th .badge { margin-left: var(--space-2); }
+
+/* --- Bank kit (Fase 3) --- */
+.stat { display: grid; gap: var(--space-1); }
+.crumb { font-size: .9rem; margin-bottom: var(--space-1); }
+.prewrap { white-space: pre-wrap; }
+.notice { border-left: 4px solid var(--blue-500); margin-bottom: var(--space-5); display: grid; gap: var(--space-2); }
+.field__hint { color: var(--ink-2); font-size: .85rem; }
+.field input[type="file"] { padding: 8px; height: auto; min-height: 44px; }
+.field textarea { resize: vertical; line-height: 1.5; }
+
+.filters { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; margin-bottom: var(--space-5); }
+.filters .field { min-width: 160px; }
+.filters__actions { display: flex; gap: var(--space-2); }
+
+.kit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4); }
+.kit-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--space-4); display: grid; gap: var(--space-2); align-content: start; }
+.kit-card__head { display: flex; gap: var(--space-2); }
+.kit-card__title { font-size: 1.05rem; }
+.kit-card__title a { color: var(--ink); text-decoration: none; }
+.kit-card__title a:hover { color: var(--blue-600); text-decoration: underline; }
+.kit-card__meta { color: var(--ink-2); }
+.kit-card__facts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); font-size: .85rem; color: var(--ink-2); }
+.kit-card__actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+.kit-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-4); margin-bottom: var(--space-5); }
+
+.badge--status-disiapkan { background: var(--blue-100); color: var(--blue-700); }
+.badge--status-aktif { background: var(--ok-bg); color: var(--ok); }
+.badge--status-terpakai { background: #eceff6; color: #4b5578; }
+
+.chips--links { margin-top: var(--space-2); }
+.chip--link { text-decoration: none; color: var(--ink); padding: 6px 14px; }
+.chip--link:hover { border-color: var(--blue-500); background: var(--blue-100); }
+
+.templates { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-5); }
+.templates__label { grid-column: 1 / -1; font-weight: 600; font-size: .95rem; }
+.template { display: grid; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); text-decoration: none; color: var(--ink); background: #fff; }
+.template span { color: var(--ink-2); font-size: .85rem; }
+.template:hover { border-color: var(--blue-500); }
+.template[aria-current="true"] { border-color: var(--blue-600); background: var(--blue-50); box-shadow: 0 0 0 1px var(--blue-600); }
+.card--form:has(.templates) { max-width: 760px; }
+
+/* Perbaikan spesifisitas: layout.css dimuat setelah components.css. */
+.page-head.page-head--row { display: flex; }
+.page-head--row .btn { align-self: flex-end; }
+.field-row { align-items: start; }
+.field { align-content: start; }
