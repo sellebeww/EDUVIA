@@ -1,0 +1,11 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%= form_with model: [ :curriculum, record ], class: "form" do |form| %>
+  <div class="field"><%= form.label :number %><%= form.number_field :number, required: true, min: 1, autofocus: true %></div>
+  <div class="field-row">
+    <div class="field"><%= form.label :starts_at %><%= form.time_field :starts_at, required: true, value: record.starts_at&.strftime("%H:%M") %></div>
+    <div class="field"><%= form.label :ends_at %><%= form.time_field :ends_at, required: true, value: record.ends_at&.strftime("%H:%M") %></div>
+  </div>
+  <div class="field"><%= form.label :label %><%= form.text_field :label, maxlength: 40, placeholder: "opsional, mis. Istirahat" %></div>
+  <div class="field field--check"><%= form.check_box :recess %><%= form.label :recess, "Ini waktu istirahat (tidak ada pelajaran)" %></div>
+  <%= render "shared/form_actions", form: form, cancel_path: curriculum_periods_path %>
+<% end %>

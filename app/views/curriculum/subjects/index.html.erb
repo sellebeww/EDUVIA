@@ -1,0 +1,26 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Mapel" %>
+<div class="page-head page-head--row">
+  <div><h1>Mapel</h1><p class="page-head__sub">Mata pelajaran yang diajarkan di sekolah ini.</p></div>
+  <%= link_to "Tambah mapel", new_curriculum_subject_path, class: "btn btn--primary" %>
+</div>
+<% if @records.empty? %>
+  <%= render "shared/empty_state", title: "Belum ada mapel", body: "Tambahkan mapel pertama untuk mulai menyusun jadwal." %>
+<% else %>
+  <div class="table-wrap"><table class="table">
+    <caption class="sr-only">Daftar mapel</caption>
+    <thead><tr><th scope="col">Kode</th><th scope="col">Nama mapel</th><th scope="col"><span class="sr-only">Aksi</span></th></tr></thead>
+    <tbody>
+      <% @records.each do |subject| %>
+        <tr>
+          <td><span class="badge"><%= subject.code %></span></td>
+          <td><%= subject.name %></td>
+          <td class="table__actions">
+            <%= link_to "Ubah", edit_curriculum_subject_path(subject), class: "btn btn--secondary btn--sm" %>
+            <%= button_to "Hapus", curriculum_subject_path(subject), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus mapel #{subject.name}?" } } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table></div>
+<% end %>

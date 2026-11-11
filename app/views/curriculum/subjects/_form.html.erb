@@ -1,0 +1,6 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%= form_with model: [ :curriculum, record ], class: "form" do |form| %>
+  <div class="field"><%= form.label :name %><%= form.text_field :name, required: true, autofocus: true, maxlength: 80 %></div>
+  <div class="field"><%= form.label :code %><%= form.text_field :code, required: true, maxlength: 12, placeholder: "mis. MTK" %></div>
+  <%= render "shared/form_actions", form: form, cancel_path: curriculum_subjects_path %>
+<% end %>

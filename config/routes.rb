@@ -10,6 +10,12 @@ Rails.application.routes.draw do
   # wakil_kurikulum
   namespace :curriculum do
     root "dashboards#show"
+    resource :school, only: %i[show update]
+    resources :periods, except: :show
+    resources :school_classes, except: :show
+    resources :subjects, except: :show
+    resources :lessons, except: :show
+    resources :duty_assignments, only: %i[index create destroy]
   end
 
   # guru_piket

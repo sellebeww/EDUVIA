@@ -1,0 +1,32 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Data Sekolah" %>
+<div class="page-head"><h1>Data Sekolah</h1><p class="page-head__sub">Pengaturan dasar dan data master. Jam pelajaran dan hari aktif berbeda di tiap sekolah, jadi semuanya bisa diatur di sini.</p></div>
+
+<div class="grid grid--3">
+  <%= link_to curriculum_school_classes_path, class: "card card--link" do %>
+    <span class="card__stat"><%= @school.school_classes.count %></span><span class="card__label">Kelas</span>
+  <% end %>
+  <%= link_to curriculum_subjects_path, class: "card card--link" do %>
+    <span class="card__stat"><%= @school.subjects.count %></span><span class="card__label">Mapel</span>
+  <% end %>
+  <%= link_to curriculum_periods_path, class: "card card--link" do %>
+    <span class="card__stat"><%= @school.periods.count %></span><span class="card__label">Jam pelajaran</span>
+  <% end %>
+</div>
+
+<div class="card card--form">
+  <h2 class="card__title">Pengaturan sekolah</h2>
+  <%= error_messages_for @school %>
+  <%= form_with model: @school, url: curriculum_school_path, method: :patch, class: "form" do |form| %>
+    <div class="field"><%= form.label :name %><%= form.text_field :name, required: true, maxlength: 120 %></div>
+    <fieldset class="field fieldset">
+      <legend>Hari aktif belajar</legend>
+      <div class="checks">
+        <% (1..7).each do |day| %>
+          <label class="check"><%= check_box_tag "school[active_days][]", day, @school.active_days.include?(day), id: "school_active_days_#{day}" %><%= day_name(day) %></label>
+        <% end %>
+      </div>
+    </fieldset>
+    <div class="form-actions"><%= form.submit "Simpan", class: "btn btn--primary", data: { turbo_submits_with: "Menyimpan..." } %></div>
+  <% end %>
+</div>

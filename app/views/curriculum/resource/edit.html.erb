@@ -1,0 +1,7 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Ubah #{resource_label}" %>
+<div class="page-head"><h1>Ubah <%= resource_label %></h1></div>
+<div class="card card--form">
+  <%= error_messages_for @record %>
+  <%= render "#{controller_path}/form", record: @record %>
+</div>

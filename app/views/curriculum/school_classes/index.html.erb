@@ -1,0 +1,27 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Kelas" %>
+<div class="page-head page-head--row">
+  <div><h1>Kelas</h1><p class="page-head__sub">Fase kurikulum ditentukan otomatis dari tingkat kelas.</p></div>
+  <%= link_to "Tambah kelas", new_curriculum_school_class_path, class: "btn btn--primary" %>
+</div>
+<% if @records.empty? %>
+  <%= render "shared/empty_state", title: "Belum ada kelas", body: "Tambahkan kelas pertama untuk mulai menyusun jadwal." %>
+<% else %>
+  <div class="table-wrap"><table class="table">
+    <caption class="sr-only">Daftar kelas</caption>
+    <thead><tr><th scope="col">Kelas</th><th scope="col">Tingkat</th><th scope="col">Fase</th><th scope="col"><span class="sr-only">Aksi</span></th></tr></thead>
+    <tbody>
+      <% @records.each do |klass| %>
+        <tr>
+          <td><%= klass.name %></td>
+          <td><%= klass.grade_level %></td>
+          <td><span class="badge">Fase <%= klass.phase %></span></td>
+          <td class="table__actions">
+            <%= link_to "Ubah", edit_curriculum_school_class_path(klass), class: "btn btn--secondary btn--sm" %>
+            <%= button_to "Hapus", curriculum_school_class_path(klass), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus kelas #{klass.name}?" } } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table></div>
+<% end %>

@@ -1,0 +1,6 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%# locals: (form:, cancel_path:) %>
+<div class="form-actions">
+  <%= form.submit "Simpan", class: "btn btn--primary", data: { turbo_submits_with: "Menyimpan..." } %>
+  <%= link_to "Batal", cancel_path, class: "btn btn--secondary" %>
+</div>

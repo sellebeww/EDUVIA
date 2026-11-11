@@ -1,0 +1,6 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<%= form_with model: [ :curriculum, record ], class: "form" do |form| %>
+  <div class="field"><%= form.label :name %><%= form.text_field :name, required: true, autofocus: true, maxlength: 40, placeholder: "mis. VII A" %></div>
+  <div class="field"><%= form.label :grade_level %><%= form.select :grade_level, (1..12).map { |g| [ "Kelas #{g}", g ] }, { include_blank: "Pilih tingkat" }, required: true %></div>
+  <%= render "shared/form_actions", form: form, cancel_path: curriculum_school_classes_path %>
+<% end %>

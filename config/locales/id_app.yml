@@ -1,0 +1,62 @@
+# Copyright (c) 2026 Vassel Goleyu. All rights reserved.
+# Nama model dan atribut dalam bahasa Indonesia untuk pesan galat.
+id:
+  activerecord:
+    errors:
+      messages:
+        restrict_dependent_destroy:
+          has_many: "Tidak dapat dihapus karena masih dipakai (%{record})"
+          has_one: "Tidak dapat dihapus karena masih dipakai (%{record})"
+    models:
+      school: Sekolah
+      period: Jam pelajaran
+      school_class: Kelas
+      subject: Mapel
+      student: Siswa
+      lesson: Jadwal
+      duty_assignment: Penugasan piket
+      kit: Kit
+      absence: Ketidakhadiran
+      activation: Aktivasi
+    attributes:
+      school:
+        name: Nama sekolah
+        active_days: Hari aktif
+      period:
+        number: Jam ke-
+        label: Nama
+        starts_at: Mulai
+        ends_at: Selesai
+        recess: Istirahat
+      school_class:
+        name: Nama kelas
+        grade_level: Tingkat
+      subject:
+        name: Nama mapel
+        code: Kode
+      student:
+        name: Nama
+        roll_number: Nomor absen
+      lesson:
+        school_class: Kelas
+        subject: Mapel
+        teacher: Guru
+        period: Jam
+        period_id: Jam
+        day_of_week: Hari
+      duty_assignment:
+        user: Guru piket
+        date: Tanggal
+      kit:
+        title: Judul
+        subject: Mapel
+        school_class: Kelas
+        duration_minutes: Durasi (menit)
+        supervisor_instructions: Petunjuk untuk pengawas
+        answer_key: Kunci jawaban
+        phase: Fase
+      absence:
+        teacher: Guru
+        date: Tanggal
+        reason: Alasan
+        note: Catatan

@@ -1,0 +1,27 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Jam Pelajaran" %>
+<div class="page-head page-head--row">
+  <div><h1>Jam Pelajaran</h1><p class="page-head__sub">Atur jam ke-N dan rentang waktunya sesuai sekolah Anda, termasuk istirahat.</p></div>
+  <%= link_to "Tambah jam", new_curriculum_period_path, class: "btn btn--primary" %>
+</div>
+<% if @records.empty? %>
+  <%= render "shared/empty_state", title: "Belum ada jam pelajaran", body: "Tambahkan jam ke-1 untuk mulai." %>
+<% else %>
+  <div class="table-wrap"><table class="table">
+    <caption class="sr-only">Daftar jam pelajaran</caption>
+    <thead><tr><th scope="col">Jam ke-</th><th scope="col">Waktu</th><th scope="col">Jenis</th><th scope="col"><span class="sr-only">Aksi</span></th></tr></thead>
+    <tbody>
+      <% @records.each do |period| %>
+        <tr>
+          <td><%= period.number %></td>
+          <td><%= period.time_range %></td>
+          <td><%= period.recess? ? "Istirahat" : "Pelajaran" %><% if period.label.present? %> <small class="muted">(<%= period.label %>)</small><% end %></td>
+          <td class="table__actions">
+            <%= link_to "Ubah", edit_curriculum_period_path(period), class: "btn btn--secondary btn--sm" %>
+            <%= button_to "Hapus", curriculum_period_path(period), method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "Hapus #{period.display_name}?" } } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table></div>
+<% end %>
