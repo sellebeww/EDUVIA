@@ -25,6 +25,7 @@ services:
       DATABASE_USERNAME: ${POSTGRES_USER:-siaga}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-siaga_dev_password}
       RAILS_LOG_TO_STDOUT: "1"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-}
     ports:
       - "${APP_PORT:-3000}:3000"
     volumes:

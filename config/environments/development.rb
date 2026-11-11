@@ -28,6 +28,10 @@ Rails.application.configure do
   # Change to :null_store to avoid any caching.
   config.cache_store = :memory_store
 
+  # Host tambahan yang boleh mengakses aplikasi (pemisah koma), mis. ALLOWED_HOSTS=sekolah.local,192.168.1.20
+  # Bawaan Rails hanya mengizinkan localhost dan alamat IP.
+  config.hosts.concat(ENV.fetch("ALLOWED_HOSTS", "").split(",").map(&:strip).reject(&:empty?))
+
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
