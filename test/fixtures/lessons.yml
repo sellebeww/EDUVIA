@@ -1,0 +1,28 @@
+# day_of_week: 1 = Senin
+senin_jam1_7a:
+  school_class: kelas_7a
+  subject: matematika
+  teacher: guru_mapel
+  period: jam_1
+  day_of_week: 1
+
+senin_jam2_7a:
+  school_class: kelas_7a
+  subject: ipa
+  teacher: guru_mapel_dua
+  period: jam_2
+  day_of_week: 1
+
+senin_jam2_8a:
+  school_class: kelas_8a
+  subject: matematika
+  teacher: guru_mapel
+  period: jam_2
+  day_of_week: 1
+
+selasa_jam1_8a:
+  school_class: kelas_8a
+  subject: ipa
+  teacher: guru_mapel_dua
+  period: jam_1
+  day_of_week: 2

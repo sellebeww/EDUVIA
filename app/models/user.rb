@@ -11,6 +11,11 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
   belongs_to :school
+  has_many :lessons, foreign_key: :teacher_id, inverse_of: :teacher, dependent: :restrict_with_error
+  has_many :kits, dependent: :restrict_with_error
+  has_many :duty_assignments, dependent: :destroy
+  has_many :absences, foreign_key: :teacher_id, inverse_of: :teacher, dependent: :restrict_with_error
+  has_many :duty_activations, class_name: "Activation", foreign_key: :invigilator_id, inverse_of: :invigilator, dependent: :nullify
 
   enum :role, ROLES.index_with(&:itself), validate: true
 

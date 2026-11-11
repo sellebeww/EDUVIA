@@ -28,4 +28,16 @@ class SchoolTest < ActiveSupport::TestCase
     assert_not schools(:smp).destroy
     assert School.exists?(schools(:smp).id)
   end
+
+  test "tidak boleh menghapus hari aktif yang masih punya jadwal" do
+    school = schools(:smp)
+    assert_not school.update(active_days: [ 2, 3, 4, 5 ]) # Senin masih punya pelajaran
+    assert school.errors[:active_days].any?
+  end
+
+  test "boleh menambah hari aktif atau menghapus hari tanpa jadwal" do
+    school = schools(:smp)
+    assert school.update(active_days: [ 1, 2, 3, 4, 5, 6 ])
+    assert school.update(active_days: [ 1, 2 ])
+  end
 end

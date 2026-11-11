@@ -1,0 +1,19 @@
+andi:
+  school_class: kelas_7a
+  name: Andi Saputra
+  roll_number: 1
+
+bella:
+  school_class: kelas_7a
+  name: Bella Anggraini
+  roll_number: 2
+
+citra:
+  school_class: kelas_7a
+  name: Citra Dewi
+  roll_number: 3
+
+dimas:
+  school_class: kelas_8a
+  name: Dimas Prakoso
+  roll_number: 1

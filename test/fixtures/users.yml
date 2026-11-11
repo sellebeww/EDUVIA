@@ -27,3 +27,24 @@ kepala_sekolah:
   email_address: kepala.sekolah@example.test
   password_digest: <%= digest %>
   role: kepala_sekolah
+
+guru_mapel_dua:
+  school: smp
+  name: Budi Santoso
+  email_address: guru.mapel.dua@example.test
+  password_digest: <%= digest %>
+  role: guru_mapel
+
+guru_piket_dua:
+  school: smp
+  name: Hendra Gunawan
+  email_address: guru.piket.dua@example.test
+  password_digest: <%= digest %>
+  role: guru_piket
+
+guru_lain:
+  school: lain
+  name: Guru Sekolah Lain
+  email_address: guru.lain@example.test
+  password_digest: <%= digest %>
+  role: guru_mapel

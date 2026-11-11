@@ -1,0 +1,14 @@
+kelas_7a:
+  school: smp
+  name: VII A
+  grade_level: 7
+
+kelas_8a:
+  school: smp
+  name: VIII A
+  grade_level: 8
+
+kelas_lain:
+  school: lain
+  name: VII A
+  grade_level: 7

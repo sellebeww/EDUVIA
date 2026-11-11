@@ -1,0 +1,14 @@
+matematika:
+  school: smp
+  name: Matematika
+  code: MTK
+
+ipa:
+  school: smp
+  name: IPA
+  code: IPA
+
+mapel_lain:
+  school: lain
+  name: Matematika
+  code: MTK
