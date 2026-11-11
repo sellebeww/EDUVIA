@@ -1,0 +1,74 @@
+<%# Copyright (c) 2026 Vassel Goleyu. All rights reserved. %>
+<% content_for :title, "Laporan #{l(@report.month, format: "%B %Y")}" %>
+<% totals = @report.totals %>
+<div class="page-head page-head--row">
+  <div>
+    <h1>Laporan Bulanan</h1>
+    <p class="page-head__sub"><%= l(@report.month, format: "%B %Y") %> · jam kosong dan penanganannya</p>
+  </div>
+  <nav class="toolbar" aria-label="Pilih bulan">
+    <%= link_to "← #{l(@prev_month, format: "%b %Y")}", report_path(@prev_month.strftime("%Y-%m")), class: "btn btn--secondary btn--sm" %>
+    <%= link_to "Bulan ini", reports_path, class: "btn btn--secondary btn--sm" %>
+    <% if @next_month %><%= link_to "#{l(@next_month, format: "%b %Y")} →", report_path(@next_month.strftime("%Y-%m")), class: "btn btn--secondary btn--sm" %><% end %>
+  </nav>
+</div>
+
+<% if @report.empty? %>
+  <%= render "shared/empty_state", title: "Belum ada jam kosong pada bulan ini", body: "Laporan terisi setelah ada jam kosong yang ditangani. Coba bulan lain." %>
+<% else %>
+  <div class="grid grid--4">
+    <div class="card stat"><span class="card__stat"><%= totals.total %></span><span class="card__label">Jam kosong
+      <% if (change = @report.change_from_previous) %><small class="delta <%= change.positive? ? "delta--up" : "delta--down" %>"><%= change.positive? ? "naik" : "turun" %> <%= change.abs %>% dari bulan lalu</small><% end %></span></div>
+    <div class="card stat"><span class="card__stat"><%= totals.handled_percent %>%</span><span class="card__label">Tertangani kit<small class="muted"><%= totals.handled %> dari <%= totals.total %> jam</small></span></div>
+    <div class="card stat"><span class="card__stat"><%= totals.no_kit %></span><span class="card__label">Tanpa kit (mode cadangan)<small class="muted"><%= percent_of(totals.no_kit, totals.total) %> dari jam kosong</small></span></div>
+    <div class="card stat"><span class="card__stat"><%= totals.reused %></span><span class="card__label">Kit dipakai ulang<small class="muted"><%= totals.unfinished %> jam belum diselesaikan</small></span></div>
+  </div>
+
+  <div class="report-grid">
+    <figure class="card chart">
+      <figcaption class="card__title">Tren 6 bulan: jam kosong dan % tertangani kit</figcaption>
+      <% max = [ @report.trend.map { |t| t[:total] }.max, 1 ].max %>
+      <div class="vbars" role="list">
+        <% @report.trend.each do |t| %>
+          <div class="vbar<%= " vbar--current" if t[:month] == @report.month %>" role="listitem" aria-label="<%= l(t[:month], format: "%B %Y") %>: <%= t[:total] %> jam kosong, <%= t[:percent] %> persen tertangani kit">
+            <span class="vbar__value"><%= t[:total] %></span>
+            <span class="vbar__track"><span class="vbar__fill" style="--h: <%= (t[:total] * 100.0 / max).round %>%"><span class="vbar__handled" style="--h: <%= t[:total].zero? ? 0 : (t[:handled] * 100.0 / t[:total]).round %>%"></span></span></span>
+            <span class="vbar__label"><%= l(t[:month], format: "%b") %></span>
+            <span class="vbar__pct"><%= t[:total].zero? ? "-" : "#{t[:percent]}%" %></span>
+          </div>
+        <% end %>
+      </div>
+      <p class="legend"><span class="legend__dot legend__dot--handled"></span>Tertangani kit <span class="legend__dot"></span>Tanpa kit atau belum selesai</p>
+    </figure>
+
+    <figure class="card chart">
+      <figcaption class="card__title">Per minggu bulan ini</figcaption>
+      <% wmax = [ @report.weekly.map { |w| w[:total] }.max, 1 ].max %>
+      <div class="hbars">
+        <% @report.weekly.each do |w| %>
+          <div class="hbar">
+            <span class="hbar__label">Minggu <%= w[:week] %></span>
+            <span class="hbar__track"><span class="hbar__fill" style="--w: <%= (w[:total] * 100.0 / wmax).round %>%"><span class="hbar__handled" style="--w: <%= w[:total].zero? ? 0 : (w[:handled] * 100.0 / w[:total]).round %>%"></span></span></span>
+            <span class="hbar__value"><%= w[:total] %></span>
+          </div>
+        <% end %>
+      </div>
+    </figure>
+
+    <figure class="card chart">
+      <figcaption class="card__title">Penyebab guru berhalangan</figcaption>
+      <% rmax = [ @report.reasons.map(&:last).max, 1 ].max %>
+      <div class="hbars">
+        <% @report.reasons.each do |label, count| %>
+          <div class="hbar">
+            <span class="hbar__label"><%= label %></span>
+            <span class="hbar__track"><span class="hbar__fill hbar__fill--plain" style="--w: <%= (count * 100.0 / rmax).round %>%"></span></span>
+            <span class="hbar__value"><%= count %> <small class="muted">(<%= percent_of(count, totals.total) %>)</small></span>
+          </div>
+        <% end %>
+      </div>
+    </figure>
+  </div>
+
+  <p class="muted report-note"><strong>Cara membaca:</strong> jam kosong = jumlah jam pelajaran kelas yang ditangani pada bulan itu (menurut tanggal ketidakhadiran). Tertangani kit = jam yang memakai kit dan sudah diselesaikan guru piket. Penyebab = alasan yang dicatat wakil kurikulum.</p>
+<% end %>
