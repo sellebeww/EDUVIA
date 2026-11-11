@@ -18,3 +18,8 @@ Keputusan yang murah diubah diputuskan langsung dan dicatat di sini. Yang mahal 
 | D12 | 2026-11-11 | Guru piket boleh melihat kunci jawaban | Pengawas non-ahli perlu mengoreksi | Rendah |
 | D13 | 2026-11-11 | Brand EDUVIA, produk Siaga Kelas, tampil bersama di header | Logo yang diberikan bertuliskan EDUVIA | Rendah |
 | D14 | 2026-11-11 | Logo dibuat sebagai SVG hasil `logo/build.mjs` dengan huruf sebagai path | Tanpa ketergantungan font, mudah dianimasikan | Rendah |
+| D15 | 2026-11-11 | Seed Fase 1 hanya sekolah + 8 pengguna. Kelas, mapel, jadwal, dan kit ditambahkan ke seed pada fase yang membuat modelnya (2 dan 3) | Brief meminta seed lengkap di Fase 1, tetapi modelnya baru ada di Fase 2 | Rendah |
+| D16 | 2026-11-11 | Konfigurasi Solid Cable (database `cable`) dipindah dari Fase 1 ke Fase 4 | Baru dibutuhkan saat Turbo Streams dipakai; menghindari konfigurasi yang belum teruji | Rendah |
+| D17 | 2026-11-11 | Rails yang terpasang 8.1.4 (generator `~> 8.0`), tambah gem `rails-i18n` untuk pesan bahasa Indonesia | Pesan validasi dan nama bulan/hari berbahasa Indonesia tanpa menulis ulang | Rendah |
+| D18 | 2026-11-11 | Tombol "Akun demo" di halaman masuk hanya muncul di `development`; kata sandi demo di `config.x.demo_password` | Juri bisa masuk sekali klik; tidak aktif di lingkungan lain | Rendah |
+| D19 | 2026-11-11 | Port host dapat diubah lewat `APP_PORT` (bawaan 3000); database tidak dibuka ke host | Menghindari bentrok port di komputer juri | Rendah |
