@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 6 332 270" width="332" height="270" role="img" aria-label="EDUVIA">
+  <title>EDUVIA</title>
+  <style>
+  :root{--ink:#0A1236;--tri:#3D6BFF}
+  .ink{color:var(--ink)}
+  .pg,.star,.tri,.ltr{transform-box:fill-box}
+
+  .pg{animation:pg .9s cubic-bezier(.22,1,.36,1) backwards}
+  .p2{animation-delay:.05s}.p1{animation-delay:.2s}
+  .tick{animation:draw .75s cubic-bezier(.65,0,.35,1) .55s backwards}
+  .ring{animation:ring 1.3s cubic-bezier(.45,0,.2,1) 1s backwards}
+  .ring.f{animation-delay:1.15s}
+  .star{transform-origin:center;animation:pop .8s cubic-bezier(.34,1.56,.64,1) 1.75s backwards,twinkle 6s ease-in-out 4s infinite}
+  .ltr{animation:rise .8s cubic-bezier(.22,1,.36,1) backwards;animation-delay:calc(1s + var(--i)*.07s)}
+  .tri{transform-origin:50% 100%;animation:pop .6s cubic-bezier(.34,1.56,.64,1) 2.05s backwards}
+  @keyframes pg{from{opacity:0;transform:translateX(-34px)}}
+  @keyframes draw{from{stroke-dashoffset:1}}
+  @keyframes ring{from{opacity:0;stroke-dasharray:1 1;stroke-dashoffset:1}to{opacity:1;stroke-dasharray:1 1;stroke-dashoffset:0}}
+  @keyframes pop{from{opacity:0;transform:scale(.2) rotate(-90deg)}}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}}
+  @keyframes twinkle{0%,88%,100%{transform:none}94%{transform:scale(.78) rotate(45deg)}}
+  @media (prefers-reduced-motion:reduce){svg *{animation:none!important}}
+</style>
+  <defs>
+    <linearGradient id="gB" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#7FA9FF"/><stop offset="1" stop-color="#2F55F0"/></linearGradient>
+    <linearGradient id="gP1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8DB8FF"/><stop offset="1" stop-color="#4672F5"/></linearGradient>
+    <linearGradient id="gP2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3F63F5"/><stop offset="1" stop-color="#1B2CB0"/></linearGradient>
+    <linearGradient id="gR" gradientUnits="userSpaceOnUse" x1="-150" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#1B2CB0" stop-opacity="0"/><stop offset=".3" stop-color="#1B2CB0"/><stop offset=".75" stop-color="#4672F5"/><stop offset="1" stop-color="#4672F5" stop-opacity="0"/></linearGradient>
+    <clipPath id="cut"><rect x="-10" y="0" width="120" height="80"/></clipPath>
+    <mask id="mB" maskUnits="userSpaceOnUse" x="0" y="0" width="340" height="300">
+      <path class="tick" d="M150 248 268 62" pathLength="1" stroke="#fff" stroke-width="170" stroke-dasharray="1" fill="none"/>
+    </mask>
+  </defs>
+  <g id="mark">
+    <g transform="translate(150 170) rotate(-30)"><path class="ring b" pathLength="1" fill="none" stroke="url(#gR)" stroke-width="3.5" stroke-linecap="round" d="M-150 0A150 48 0 0 1 150 0"/></g>
+    <path class="pg p1" fill="url(#gP1)" stroke="url(#gP1)" stroke-width="5" stroke-linejoin="round" d="M48 96C92 98 128 146 150 198V226C128 176 92 126 48 124Z"/>
+    <path class="pg p2" fill="url(#gP2)" stroke="url(#gP2)" stroke-width="5" stroke-linejoin="round" d="M30 132C82 134 124 190 150 236V258C122 214 82 164 30 160Z"/>
+    <path d="M262 48V112L150 258V198Z" fill="url(#gB)" stroke="url(#gB)" stroke-width="5" stroke-linejoin="round" mask="url(#mB)"/>
+    <g transform="translate(150 170) rotate(-30)"><path class="ring f" pathLength="1" fill="none" stroke="url(#gR)" stroke-width="3.5" stroke-linecap="round" d="M-150 0A150 48 0 0 0 150 0"/></g>
+    <path class="star" fill="#3D6BFF" d="M306 18C308 36 314 42 332 44 314 46 308 52 306 70 304 52 298 46 280 44 298 42 304 36 306 18Z"/>
+  </g>
+</svg>

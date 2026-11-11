@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EDUVIA Logo Preview</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.4 system-ui,sans-serif;background:#111;color:#ccc}
+  section{padding:32px 5vw;display:grid;gap:16px;justify-items:start}
+  h2{margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+  img{max-width:100%;height:auto}
+  .dark{background:#06091f}
+  .light{background:#fff;color:#333}
+  .check{color:#333;background:repeating-conic-gradient(#ddd 0 25%,#fff 0 50%) 0 0/24px 24px}
+  .row{display:flex;gap:48px;align-items:center;flex-wrap:wrap}
+  button{font:inherit;padding:6px 14px;border-radius:6px;border:1px solid currentColor;background:none;color:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<section class="dark">
+  <h2>Animasi · latar gelap <button onclick="replay()">Putar ulang</button></h2>
+  <img class="anim" src="eduvia-logo.svg" data-src="eduvia-logo.svg" width="760" alt="EDUVIA">
+  <div class="row"><img class="anim" src="eduvia-mark-animated.svg" data-src="eduvia-mark-animated.svg" width="140" alt="EDUVIA mark"><img src="eduvia-mark.svg" width="48" alt=""><img src="eduvia-mark.svg" width="24" alt=""></div>
+</section>
+<section class="light">
+  <h2>Animasi · latar terang</h2>
+  <img class="anim" src="eduvia-logo-light.svg" data-src="eduvia-logo-light.svg" width="760" alt="EDUVIA">
+  <div class="row"><img class="anim" src="eduvia-mark-light-animated.svg" data-src="eduvia-mark-light-animated.svg" width="140" alt="EDUVIA mark"><img src="eduvia-mark-light.svg" width="48" alt=""><img src="eduvia-mark-light.svg" width="24" alt=""></div>
+</section>
+<section class="check">
+  <h2>PNG transparan (kotak-kotak = tanpa latar)</h2>
+  <div class="row"><img src="png/eduvia-logo.png" width="520" alt=""><img src="png/eduvia-logo-light.png" width="520" alt=""></div>
+</section>
+<script>
+  function replay(){document.querySelectorAll(".anim").forEach(i=>{i.src=i.dataset.src+"?"+Date.now()})}
+</script>
+</body>
+</html>
