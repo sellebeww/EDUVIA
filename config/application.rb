@@ -39,6 +39,9 @@ module SiagaKelas
     config.i18n.default_locale = :id
     config.i18n.available_locales = %i[id en]
 
+    # Unduhan lampiran lewat aksi aplikasi (dengan pengecekan hak akses), jadi rute publik Active Storage tidak dipakai.
+    config.active_storage.draw_routes = false
+
     # Kata sandi akun demo (seed + tombol akun demo di halaman masuk). Hanya untuk demo lokal.
     config.x.demo_password = "siaga2026"
     # config.eager_load_paths << Rails.root.join("extras")

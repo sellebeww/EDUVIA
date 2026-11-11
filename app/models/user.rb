@@ -23,6 +23,7 @@ class User < ApplicationRecord
   normalizes :name, with: ->(n) { n.strip }
 
   validates :name, presence: true
+  validates :password, length: { minimum: 8, maximum: 72 }, allow_nil: true
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
   def role_label = ROLE_LABELS.fetch(role)

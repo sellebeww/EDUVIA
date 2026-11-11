@@ -56,6 +56,11 @@ id:
         answer_key: Kunci jawaban
         phase: Fase
         worksheet: Lampiran PDF
+      user:
+        name: Nama
+        email_address: Email
+        password: Kata sandi
+        password_confirmation: Konfirmasi kata sandi
       absence:
         teacher: Guru
         date: Tanggal
