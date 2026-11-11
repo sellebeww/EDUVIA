@@ -114,3 +114,5 @@
 .chip__remove:focus-visible { box-shadow: var(--focus); }
 
 @media (max-width: 640px) { .field-row { grid-template-columns: 1fr; } }
+.field input:not([type="checkbox"]):not([type="radio"]), .field select { height: 44px; }
+.table th .badge { margin-left: var(--space-2); }
